@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>System Admin — Resilink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:      #0f1623;
+      --teal:      #5ba4c8;
+      --indigo:    #7c82d4;
+      --green:     #5db88a;
+      --amber:     #d4a054;
+      --red:       #e05252;
+      --orange:    #f4845f;
+      --slate:     #9aafc4;
+      --slate-dim: #5c7490;
+      --gray:      #888ea0;
+      --white:     #e8f0f8;
+      --surface:   rgba(15,22,35,0.97);
+      --glass:     rgba(255,255,255,0.04);
+      --border:    rgba(255,255,255,0.09);
+      --font:      'DM Sans', sans-serif;
+      --mono:      'DM Mono', monospace;
+      --display:   'Space Grotesk', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: var(--font); background: var(--navy); color: var(--white); }
+
+    /* ── LOGIN SCREEN ── */
+    #loginScreen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(-45deg, #0f172a, #1e293b, #0c4a6e, #1e293b);
+      background-size: 400% 400%; animation: gradientMove 15s ease infinite;
+    }
+    @keyframes gradientMove { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    .login-card {
+      background: rgba(255,255,255,0.08); backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 20px;
+      padding: 44px 42px; width: 420px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+    }
+    .login-icon {
+      width: 52px; height: 52px; border-radius: 14px; font-size: 24px;
+      background: linear-gradient(135deg, var(--red), var(--orange));
+      display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+    }
+    .login-title { font-family: var(--display); font-size: 22px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+    .login-sub { font-size: 13px; color: var(--slate); margin-bottom: 28px; }
+    .field-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #7dd3fc; margin-bottom: 6px; display: block; }
+    .field-input {
+      width: 100%; padding: 12px 14px; border-radius: 10px; margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.09);
+      color: var(--white); font-family: var(--font); font-size: 14px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .field-input:focus { border-color: rgba(56,189,248,0.55); }
+    .field-input::placeholder { color: #64748b; }
+    .login-btn {
+      width: 100%; padding: 13px; border-radius: 10px; border: none; cursor: pointer;
+      background: linear-gradient(135deg, var(--red), var(--orange));
+      color: white; font-family: var(--font); font-size: 14px; font-weight: 700;
+      transition: 0.25s; margin-top: 4px;
+    }
+    .login-btn:hover:not(:disabled) { transform: translateY(-2px); opacity: 0.9; }
+    .login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .login-error { color: #f87171; font-size: 12px; margin-bottom: 10px; display: none; }
+
+    /* ── ADMIN PANEL ── */
+    #adminPanel { display: none; min-height: 100vh; }
+
+    .admin-topbar {
+      position: fixed; top: 0; left: 0; right: 0; height: 56px; z-index: 100;
+      background: rgba(10,16,28,0.97); border-bottom: 1px solid rgba(224,82,82,0.2);
+      display: flex; align-items: center; gap: 14px; padding: 0 24px;
+      backdrop-filter: blur(20px);
+    }
+    .admin-topbar-icon {
+      width: 32px; height: 32px; border-radius: 9px; font-size: 15px;
+      background: linear-gradient(135deg, var(--red), var(--orange));
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .admin-topbar-title { font-family: var(--display); font-size: 15px; font-weight: 700; color: var(--white); }
+    .admin-topbar-sub { font-size: 11px; color: var(--slate-dim); font-family: var(--mono); }
+    .admin-topbar-spacer { flex: 1; }
+    .admin-signout-btn {
+      padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(224,82,82,0.25);
+      background: rgba(224,82,82,0.08); color: #d98080; font-family: var(--font);
+      font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .admin-signout-btn:hover { background: rgba(224,82,82,0.18); color: #f08080; }
+
+    .admin-tabs {
+      position: fixed; top: 56px; left: 0; right: 0; z-index: 99;
+      background: rgba(13,20,33,0.97); border-bottom: 1px solid var(--border);
+      display: flex; padding: 0 24px; backdrop-filter: blur(16px);
+    }
+    .admin-tab {
+      padding: 12px 18px; font-size: 13px; font-weight: 600; cursor: pointer;
+      color: var(--slate-dim); border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: all 0.2s; display: flex; align-items: center; gap: 7px;
+      font-family: var(--font); background: none; border-top: none; border-left: none; border-right: none;
+    }
+    .admin-tab:hover { color: var(--slate); }
+    .admin-tab.active { color: var(--red); border-bottom-color: var(--red); }
+    .admin-tab svg { width: 14px; height: 14px; }
+
+    .admin-content { padding: 120px 28px 40px; max-width: 1100px; margin: 0 auto; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 22px; flex-wrap: wrap; gap: 12px;
+    }
+    .panel-title {
+      font-family: var(--display); font-size: 20px; font-weight: 700;
+      color: #e0ecfa; letter-spacing: -0.02em;
+    }
+    .panel-count { font-size: 12px; color: var(--slate-dim); font-family: var(--mono); margin-top: 2px; }
+    .refresh-btn {
+      padding: 8px 16px; border-radius: 9px; border: 1px solid var(--border);
+      background: var(--glass); color: var(--slate); font-family: var(--font);
+      font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .refresh-btn:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+    .refresh-btn svg { width: 13px; height: 13px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 26px; }
+    .stat-card {
+      background: rgba(21,30,46,0.8); border: 1px solid var(--border); border-radius: 13px;
+      padding: 18px 16px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .stat-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 16px; height: 16px; }
+    .stat-val { font-family: var(--display); font-size: 28px; font-weight: 700; color: #e0ecfa; line-height: 1; }
+    .stat-lbl { font-size: 11.5px; color: var(--gray); }
+
+    .admin-table-wrap {
+      background: rgba(21,30,46,0.8); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+    }
+    .admin-search { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .admin-search input {
+      width: 100%; padding: 9px 13px; border-radius: 9px;
+      border: 1px solid var(--border); background: rgba(255,255,255,0.06);
+      color: var(--white); font-family: var(--font); font-size: 13px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .admin-search input:focus { border-color: rgba(91,164,200,0.45); }
+    .admin-search input::placeholder { color: var(--slate-dim); }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      text-align: left; padding: 10px 16px; font-size: 10.5px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--slate-dim);
+      border-bottom: 1px solid var(--border); white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+    tbody td { padding: 11px 16px; font-size: 13px; color: var(--slate); vertical-align: middle; }
+    .td-name { color: var(--white); font-weight: 500; }
+    .td-mono { font-family: var(--mono); font-size: 11.5px; }
+
+    .role-badge {
+      display: inline-block; padding: 3px 9px; border-radius: 20px;
+      font-size: 10px; font-weight: 700; font-family: var(--mono); letter-spacing: 0.05em;
+    }
+    .role-sysadmin { background: rgba(224,82,82,0.15); color: #f08080; border: 1px solid rgba(224,82,82,0.3); }
+    .role-lgu      { background: rgba(124,130,212,0.15); color: var(--indigo); border: 1px solid rgba(124,130,212,0.3); }
+    .role-community{ background: rgba(91,164,200,0.12); color: var(--teal); border: 1px solid rgba(91,164,200,0.22); }
+
+    .tbl-btn {
+      padding: 4px 10px; border-radius: 7px; cursor: pointer;
+      font-size: 11px; font-weight: 600; font-family: var(--font);
+      border: 1px solid; transition: all 0.18s; margin-right: 4px;
+    }
+    .tbl-btn-role  { background: rgba(124,130,212,0.08); border-color: rgba(124,130,212,0.25); color: var(--indigo); }
+    .tbl-btn-role:hover { background: rgba(124,130,212,0.2); }
+    .tbl-btn-del   { background: rgba(224,82,82,0.07); border-color: rgba(224,82,82,0.22); color: #d98080; }
+    .tbl-btn-del:hover { background: rgba(224,82,82,0.18); }
+    .tbl-btn-restore { background: rgba(93,184,138,0.08); border-color: rgba(93,184,138,0.25); color: var(--green); }
+    .tbl-btn-restore:hover { background: rgba(93,184,138,0.2); }
+
+    .role-select {
+      padding: 4px 8px; border-radius: 7px; font-family: var(--mono); font-size: 11px;
+      border: 1px solid rgba(124,130,212,0.3); background: rgba(124,130,212,0.08);
+      color: var(--indigo); outline: none; cursor: pointer;
+    }
+    .role-select option { background: #111827; color: var(--white); }
+
+    .tbl-loading { text-align: center; padding: 40px; color: var(--slate-dim); font-size: 13px; }
+    .tbl-empty   { text-align: center; padding: 50px; color: var(--slate-dim); font-size: 13px; }
+
+    .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+    .archive-card {
+      background: rgba(21,30,46,0.8); border: 1px solid var(--border); border-radius: 13px;
+      padding: 16px 18px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .archive-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .archive-cat { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; background: rgba(91,164,200,0.12); color: var(--teal); border: 1px solid rgba(91,164,200,0.2); }
+    .archive-title { font-size: 13.5px; font-weight: 600; color: #c5d5e8; }
+    .archive-desc  { font-size: 12.5px; color: #6a85a8; line-height: 1.5; }
+    .archive-meta  { font-size: 11px; color: var(--slate-dim); display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(5px);
+      display: flex; justify-content: center; align-items: center; z-index: 500;
+    }
+    .modal-box {
+      width: 360px; padding: 28px; border-radius: 18px; background: var(--surface);
+      border: 1px solid var(--border); color: var(--white); text-align: center;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+    }
+    .modal-icon { font-size: 30px; margin-bottom: 10px; }
+    .modal-title { font-family: var(--display); font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .modal-body { font-size: 13px; color: var(--slate); line-height: 1.6; margin-bottom: 20px; }
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-confirm { flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 700; font-family: var(--font); background: linear-gradient(135deg, var(--red), var(--orange)); color: white; cursor: pointer; }
+    .modal-cancel  { flex: 1; padding: 10px; border-radius: 10px; border: none; background: var(--glass); color: var(--slate); font-family: var(--font); cursor: pointer; border: 1px solid var(--border); }
+    .modal-confirm:hover { opacity: 0.9; }
+    .modal-cancel:hover  { background: rgba(255,255,255,0.08); }
+
+    .spinner-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 600; align-items: center; justify-content: center; flex-direction: column; gap: 14px; color: #cbd5e1; font-size: 14px; }
+    .spinner-overlay.show { display: flex; }
+    .spinner { width: 36px; height: 36px; border: 3px solid rgba(56,189,248,0.2); border-top-color: #38bdf8; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: rgba(91,164,200,0.18); border-radius: 10px; }
+  </style>
+  <link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+
+<div class="spinner-overlay" id="spinnerOverlay">
+  <div class="spinner"></div>
+  <span id="spinnerMsg">Loading…</span>
+</div>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-icon">🛡️</div>
+    <div class="login-title">System Administrator</div>
+    <div class="login-sub">Resilink — Restricted Access</div>
+    <div id="loginError" class="login-error"></div>
+    <label class="field-label" for="adminEmail">Admin Email</label>
+    <input class="field-input" type="email" id="adminEmail" placeholder="admin@example.com">
+    <label class="field-label" for="adminPassword">Password</label>
+    <input class="field-input" type="password" id="adminPassword" placeholder="Password">
+    <label class="field-label" for="adminCode">System Admin Code</label>
+    <input class="field-input" type="text" id="adminCode" placeholder="Enter system admin authorization code">
+    <button class="login-btn" id="adminLoginBtn">Sign In as Admin</button>
+  </div>
+</div>
+
+<!-- ══ ADMIN PANEL ══ -->
+<div id="adminPanel">
+
+  <div class="admin-topbar">
+    <div class="admin-topbar-icon">🛡️</div>
+    <div>
+      <div class="admin-topbar-title">System Administrator</div>
+      <div class="admin-topbar-sub" id="adminEmailDisplay">—</div>
+    </div>
+    <div class="admin-topbar-spacer"></div>
+    <button class="admin-signout-btn" id="adminSignOutBtn">Sign Out</button>
+  </div>
+
+  <div class="admin-tabs">
+    <button class="admin-tab active" data-tab="users">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      User Management
+    </button>
+    <button class="admin-tab" data-tab="reports">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Reports Overview
+    </button>
+    <button class="admin-tab" data-tab="archive">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+      Archived Reports
+    </button>
+    <button class="admin-tab" data-tab="overview">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      System Overview
+    </button>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- ── USERS TAB ── -->
+    <div class="tab-panel active" id="tab-users">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">User Management</div>
+          <div class="panel-count" id="userCount">Loading…</div>
+        </div>
+        <button class="refresh-btn" id="refreshUsersBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+      <div class="admin-table-wrap">
+        <div class="admin-search">
+          <input type="text" id="userSearch" placeholder="Search by name, email, or role…">
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Role</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <tr><td colspan="6" class="tbl-loading">Loading users…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── REPORTS TAB ── -->
+    <div class="tab-panel" id="tab-reports">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Reports Overview</div>
+          <div class="panel-count" id="reportsCount">Loading…</div>
+        </div>
+        <button class="refresh-btn" id="refreshReportsBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+      <div class="admin-table-wrap">
+        <div class="admin-search">
+          <input type="text" id="reportSearch" placeholder="Search by title, category, or status…">
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Source</th>
+              <th>Status</th>
+              <th>Flagged</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reportsTableBody">
+            <tr><td colspan="7" class="tbl-loading">Loading reports…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── ARCHIVE TAB ── -->
+    <div class="tab-panel" id="tab-archive">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Archived Reports</div>
+          <div class="panel-count" id="archiveCount">Loading…</div>
+        </div>
+        <button class="refresh-btn" id="refreshArchiveBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+      <div class="archive-grid" id="archiveGrid">
+        <div class="tbl-loading">Loading archived reports…</div>
+      </div>
+    </div>
+
+    <!-- ── OVERVIEW TAB ── -->
+    <div class="tab-panel" id="tab-overview">
+      <div class="panel-title" style="margin-bottom:20px;">System Overview</div>
+      <div class="stats-row" id="overviewStats">
+        <div class="stat-card"><div class="stat-icon" style="color:#5ba4c8;background:rgba(91,164,200,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-val" id="ov-users">—</div><div class="stat-lbl">Total Users</div></div>
+        <div class="stat-card"><div class="stat-icon" style="color:#7c82d4;background:rgba(124,130,212,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="stat-val" id="ov-lgu">—</div><div class="stat-lbl">LGU Accounts</div></div>
+        <div class="stat-card"><div class="stat-icon" style="color:#f4845f;background:rgba(244,132,95,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="stat-val" id="ov-active">—</div><div class="stat-lbl">Active Reports</div></div>
+        <div class="stat-card"><div class="stat-icon" style="color:#888ea0;background:rgba(136,142,160,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-val" id="ov-resolved">—</div><div class="stat-lbl">Resolved Reports</div></div>
+        <div class="stat-card"><div class="stat-icon" style="color:#f4845f;background:rgba(244,132,95,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="stat-val" id="ov-flagged">—</div><div class="stat-lbl">Flagged Reports</div></div>
+        <div class="stat-card"><div class="stat-icon" style="color:#5db88a;background:rgba(93,184,138,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg></div><div class="stat-val" id="ov-heritage">—</div><div class="stat-lbl">Heritage Sites</div></div>
+        <div class="stat-card"><div class="stat-icon" style="color:#e05252;background:rgba(224,82,82,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><div class="stat-val" id="ov-evac">—</div><div class="stat-lbl">Evacuation Centers</div></div>
+        <div class="stat-card"><div class="stat-icon" style="color:#d4a054;background:rgba(212,160,84,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/></svg></div><div class="stat-val" id="ov-archived">—</div><div class="stat-lbl">Archived Reports</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Confirm modal -->
+<div class="modal-overlay" id="confirmModal" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-icon" id="modalIcon">⚠️</div>
+    <div class="modal-title" id="modalTitle">Confirm Action</div>
+    <div class="modal-body" id="modalBody">Are you sure?</div>
+    <div class="modal-actions">
+      <button class="modal-confirm" id="modalConfirm">Confirm</button>
+      <button class="modal-cancel"  id="modalCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import {
+    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import {
+    getFirestore, collection, getDocs, doc, getDoc,
+    updateDoc, deleteDoc, query, orderBy, limit
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDgpI9Qn8Z_gvz9lruhq5VmZ8frEUlNKN4",
+    authDomain: "disaster-map-platform.firebaseapp.com",
+    projectId: "disaster-map-platform",
+    appId: "1:741032743359:web:bbe517d850e766e6ed910a",
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let allUsers   = [];
+  let allReports = [];
+  let allArchive = [];
+
+  function showSpinner(msg = "Loading…") {
+    document.getElementById("spinnerMsg").textContent = msg;
+    document.getElementById("spinnerOverlay").classList.add("show");
+  }
+  function hideSpinner() { document.getElementById("spinnerOverlay").classList.remove("show"); }
+
+  function showConfirm(icon, title, body, onConfirm) {
+    document.getElementById("modalIcon").textContent  = icon;
+    document.getElementById("modalTitle").textContent = title;
+    document.getElementById("modalBody").textContent  = body;
+    document.getElementById("confirmModal").style.display = "flex";
+    document.getElementById("modalConfirm").onclick = () => {
+      document.getElementById("confirmModal").style.display = "none";
+      onConfirm();
+    };
+    document.getElementById("modalCancel").onclick = () => {
+      document.getElementById("confirmModal").style.display = "none";
+    };
+  }
+
+  function fmtDate(ts) {
+    if (!ts?.toDate) return "—";
+    return ts.toDate().toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function roleBadge(role) {
+    const cls = role === "sysadmin" ? "role-sysadmin" : role === "lgu" ? "role-lgu" : "role-community";
+    return `<span class="role-badge ${cls}">${role || "community"}</span>`;
+  }
+
+  document.getElementById("adminLoginBtn").addEventListener("click", async () => {
+    const email    = document.getElementById("adminEmail").value.trim();
+    const password = document.getElementById("adminPassword").value;
+    const code     = document.getElementById("adminCode").value.trim();
+    const errEl    = document.getElementById("loginError");
+    errEl.style.display = "none";
+
+    if (!email || !password || !code) {
+      errEl.textContent = "All fields are required."; errEl.style.display = "block"; return;
+    }
+
+    showSpinner("Signing in…");
+    try {
+      const configDoc = await getDoc(doc(db, "system_config", "access"));
+      if (!configDoc.exists() || code !== configDoc.data().sysadminSecret) {
+        hideSpinner();
+        errEl.textContent = "Invalid system admin code."; errEl.style.display = "block"; return;
+      }
+
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const userDoc = await getDoc(doc(db, "users", cred.user.uid));
+      if (!userDoc.exists() || userDoc.data().role !== "sysadmin") {
+        await signOut(auth);
+        hideSpinner();
+        errEl.textContent = "This account does not have system admin privileges.";
+        errEl.style.display = "block"; return;
+      }
+
+      hideSpinner();
+      showAdminPanel(cred.user);
+
+    } catch (err) {
+      hideSpinner();
+      errEl.textContent = err.code === "auth/invalid-credential" || err.code === "auth/wrong-password"
+        ? "Incorrect email or password." : "Login failed. Please try again.";
+      errEl.style.display = "block";
+    }
+  });
+  document.getElementById("adminPassword").addEventListener("keydown", e => {
+    if (e.key === "Enter") document.getElementById("adminLoginBtn").click();
+  });
+
+  function showAdminPanel(user) {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("adminPanel").style.display  = "block";
+    document.getElementById("adminEmailDisplay").textContent = user.email;
+    loadAllData();
+  }
+
+  document.getElementById("adminSignOutBtn").addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.reload();
+  });
+
+  document.querySelectorAll(".admin-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById(`tab-${tab.dataset.tab}`).classList.add("active");
+    });
+  });
+
+  async function loadAllData() {
+    showSpinner("Loading data…");
+    try {
+      const [userSnap, incSnap, archSnap, heritageSnap, evacSnap] = await Promise.all([
+        getDocs(collection(db, "users")),
+        getDocs(query(collection(db, "incidents"), orderBy("createdAt", "desc"))),
+        getDocs(query(collection(db, "archived_incidents"), orderBy("archivedAt", "desc"))),
+        getDocs(collection(db, "heritage_sites")),
+        getDocs(collection(db, "evacuation_centers"))
+      ]);
+
+      allUsers   = userSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      allReports = incSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      allArchive = archSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      renderUsers();
+      renderReports();
+      renderArchive();
+      renderOverview(heritageSnap.size, evacSnap.size);
+
+    } catch (err) {
+      console.error("loadAllData:", err);
+    }
+    hideSpinner();
+  }
+
+  document.getElementById("refreshUsersBtn").addEventListener("click", loadAllData);
+  document.getElementById("refreshReportsBtn").addEventListener("click", loadAllData);
+  document.getElementById("refreshArchiveBtn").addEventListener("click", loadAllData);
+
+  function renderUsers(filter = "") {
+    const tbody = document.getElementById("usersTableBody");
+    const fl    = filter.toLowerCase();
+    const list  = filter
+      ? allUsers.filter(u =>
+          (u.username||"").toLowerCase().includes(fl) ||
+          (u.email||"").toLowerCase().includes(fl) ||
+          (u.role||"").toLowerCase().includes(fl))
+      : allUsers;
+
+    document.getElementById("userCount").textContent = `${list.length} user${list.length !== 1 ? "s" : ""}`;
+
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="tbl-empty">No users found.</td></tr>`; return;
+    }
+
+    tbody.innerHTML = list.map(u => `
+      <tr>
+        <td class="td-name">${u.username || "—"}</td>
+        <td class="td-mono">${u.email || "—"}</td>
+        <td class="td-mono">${u.phone || "—"}</td>
+        <td>${roleBadge(u.role)}</td>
+        <td class="td-mono">${fmtDate(u.createdAt)}</td>
+        <td>
+          <select class="role-select" data-uid="${u.id}" data-current="${u.role||'community'}"
+            onchange="changeRole('${u.id}', this.value, '${u.username||u.email}')">
+            <option value="community" ${u.role==='community'?'selected':''}>Community</option>
+            <option value="lgu"       ${u.role==='lgu'?'selected':''}>LGU</option>
+            <option value="sysadmin"  ${u.role==='sysadmin'?'selected':''}>Sysadmin</option>
+          </select>
+          <button class="tbl-btn tbl-btn-del" style="margin-left:4px;"
+            onclick="deleteUser('${u.id}', '${(u.username||u.email).replace(/'/g,"\\'")}')">
+            Delete
+          </button>
+        </td>
+      </tr>`).join("");
+  }
+
+  document.getElementById("userSearch").addEventListener("input", e => renderUsers(e.target.value));
+
+  window.changeRole = async function(uid, newRole, name) {
+    showConfirm("🔄", "Change role?",
+      `Set "${name}" to ${newRole}?`,
+      async () => {
+        showSpinner("Updating role…");
+        try {
+          await updateDoc(doc(db, "users", uid), { role: newRole });
+          const u = allUsers.find(u => u.id === uid);
+          if (u) u.role = newRole;
+          renderUsers(document.getElementById("userSearch").value);
+        } catch (err) { console.error(err); alert("Failed to update role."); }
+        hideSpinner();
+      }
+    );
+  };
+
+  window.deleteUser = async function(uid, name) {
+    showConfirm("🗑️", "Delete user?",
+      `This will remove "${name}" from Firestore. Their Firebase Auth account will remain — delete that manually in the Firebase console if needed.`,
+      async () => {
+        showSpinner("Deleting user…");
+        try {
+          await deleteDoc(doc(db, "users", uid));
+          allUsers = allUsers.filter(u => u.id !== uid);
+          renderUsers(document.getElementById("userSearch").value);
+          renderOverviewStats();
+        } catch (err) { console.error(err); alert("Failed to delete user."); }
+        hideSpinner();
+      }
+    );
+  };
+
+  function renderReports(filter = "") {
+    const tbody = document.getElementById("reportsTableBody");
+    const fl    = filter.toLowerCase();
+    const list  = filter
+      ? allReports.filter(r =>
+          (r.title||"").toLowerCase().includes(fl) ||
+          (r.category||"").toLowerCase().includes(fl) ||
+          (r.status||"").toLowerCase().includes(fl))
+      : allReports;
+
+    document.getElementById("reportsCount").textContent = `${list.length} report${list.length !== 1 ? "s" : ""}`;
+
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="tbl-empty">No reports found.</td></tr>`; return;
+    }
+
+    tbody.innerHTML = list.map(r => `
+      <tr>
+        <td class="td-name" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.title || "—"}</td>
+        <td style="font-size:11.5px;">${r.category || "—"}</td>
+        <td>${r.source === "lgu"
+          ? `<span class="role-badge role-lgu">LGU</span>`
+          : `<span class="role-badge role-community">Community</span>`}</td>
+        <td>${r.status === "resolved"
+          ? `<span class="role-badge" style="background:rgba(136,142,160,.12);color:var(--gray);border:1px solid rgba(136,142,160,.2);">Resolved</span>`
+          : `<span class="role-badge" style="background:rgba(244,132,95,.12);color:var(--orange);border:1px solid rgba(244,132,95,.2);">Active</span>`}</td>
+        <td style="text-align:center;">${r.flagged
+          ? `<span style="color:var(--orange);font-size:12px;">🚩 ${r.flagCount||1}</span>`
+          : `<span style="color:var(--slate-dim);font-size:11px;">—</span>`}</td>
+        <td class="td-mono">${fmtDate(r.createdAt)}</td>
+        <td>
+          <button class="tbl-btn tbl-btn-del"
+            onclick="deleteReport('${r.id}', '${(r.title||'Report').replace(/'/g,"\\'")}')">
+            Delete
+          </button>
+        </td>
+      </tr>`).join("");
+  }
+
+  document.getElementById("reportSearch").addEventListener("input", e => renderReports(e.target.value));
+
+  window.deleteReport = async function(id, title) {
+    showConfirm("🗑️", "Permanently delete report?",
+      `"${title}" will be permanently removed. This cannot be undone.`,
+      async () => {
+        showSpinner("Deleting…");
+        try {
+          await deleteDoc(doc(db, "incidents", id));
+          allReports = allReports.filter(r => r.id !== id);
+          renderReports(document.getElementById("reportSearch").value);
+          renderOverviewStats();
+        } catch (err) { console.error(err); alert("Failed to delete."); }
+        hideSpinner();
+      }
+    );
+  };
+
+  function renderArchive() {
+    const grid = document.getElementById("archiveGrid");
+    document.getElementById("archiveCount").textContent =
+      `${allArchive.length} archived report${allArchive.length !== 1 ? "s" : ""}`;
+
+    if (!allArchive.length) {
+      grid.innerHTML = `<div class="tbl-empty">No archived reports yet.</div>`; return;
+    }
+
+    grid.innerHTML = allArchive.map(r => `
+      <div class="archive-card">
+        <div class="archive-card-header">
+          <span class="archive-cat">${r.category || "Report"}</span>
+          <span class="td-mono" style="font-size:10.5px;">${fmtDate(r.archivedAt)}</span>
+        </div>
+        <div class="archive-title">${r.title || "Untitled"}</div>
+        <div class="archive-desc">${r.description || "No description."}</div>
+        <div class="archive-meta">
+          <span>${r.source === "lgu" ? "🔵 LGU" : "🟠 Community"}</span>
+          ${r.latitude ? `<span>📍 ${r.latitude.toFixed(4)}, ${r.longitude.toFixed(4)}</span>` : ""}
+        </div>
+        <button class="tbl-btn tbl-btn-del" style="margin-top:6px;width:100%;"
+          onclick="deleteArchived('${r.id}', '${(r.title||'Report').replace(/'/g,"\\'")}')">
+          Delete Permanently
+        </button>
+      </div>`).join("");
+  }
+
+  window.deleteArchived = async function(id, title) {
+    showConfirm("🗑️", "Delete archived report?",
+      `"${title}" will be permanently removed from the archive.`,
+      async () => {
+        showSpinner("Deleting…");
+        try {
+          await deleteDoc(doc(db, "archived_incidents", id));
+          allArchive = allArchive.filter(r => r.id !== id);
+          renderArchive();
+          renderOverviewStats();
+        } catch (err) { console.error(err); alert("Failed to delete."); }
+        hideSpinner();
+      }
+    );
+  };
+
+  function renderOverview(heritageSz, evacSz) {
+    document.getElementById("ov-heritage").textContent = heritageSz;
+    document.getElementById("ov-evac").textContent     = evacSz;
+    renderOverviewStats();
+  }
+
+  function renderOverviewStats() {
+    const lgu      = allUsers.filter(u => u.role === "lgu").length;
+    const active   = allReports.filter(r => r.status !== "resolved").length;
+    const resolved = allReports.filter(r => r.status === "resolved").length;
+    const flagged  = allReports.filter(r => r.flagged && !r.verified).length;
+
+    document.getElementById("ov-users").textContent    = allUsers.length;
+    document.getElementById("ov-lgu").textContent      = lgu;
+    document.getElementById("ov-active").textContent   = active;
+    document.getElementById("ov-resolved").textContent = resolved;
+    document.getElementById("ov-flagged").textContent  = flagged;
+    document.getElementById("ov-archived").textContent = allArchive.length;
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (userDoc.exists() && userDoc.data().role === "sysadmin") {
+      showAdminPanel(user);
+    }
+  });
+</script>
+</body>
+</html>

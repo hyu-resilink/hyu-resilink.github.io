@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Complete Your Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: 'Segoe UI', sans-serif; min-height: 100vh;
+      display: flex; justify-content: center; align-items: center;
+      background: linear-gradient(-45deg, #0f172a, #1e293b, #0c4a6e, #1e293b);
+      background-size: 400% 400%; animation: gradientMove 15s ease infinite;
+      color: white; padding: 20px;
+    }
+    @keyframes gradientMove {
+      0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%}
+    }
+    .glow {
+      position: fixed; width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(56,189,248,0.25) 0%, transparent 70%);
+      border-radius: 50%; animation: float 12s ease-in-out infinite alternate; pointer-events: none;
+    }
+    .glow:nth-child(1){top:-100px;left:-100px} .glow:nth-child(2){bottom:-120px;right:-120px}
+    @keyframes float{from{transform:translateY(0)}to{transform:translateY(40px)}}
+
+    .card {
+      position: relative; backdrop-filter: blur(20px);
+      background: rgba(255,255,255,0.08); padding: 36px 38px; width: 440px;
+      border-radius: 20px; box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+      border: 1px solid rgba(255,255,255,0.12); z-index: 10;
+      max-height: 95vh; overflow-y: auto;
+    }
+    .card::-webkit-scrollbar { width: 4px; }
+    .card::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+    .steps-row { display: flex; align-items: center; gap: 0; margin-bottom: 26px; }
+    .step-item { display: flex; align-items: center; gap: 7px; flex: 1; }
+    .step-circle {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; transition: all 0.3s;
+      background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.18); color: #64748b;
+    }
+    .step-circle.active { background: linear-gradient(135deg,#38bdf8,#6366f1); border-color: transparent; color: white; }
+    .step-circle.done { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.5); color: #86efac; }
+    .step-label { font-size: 11px; color: #475569; white-space: nowrap; }
+    .step-label.active { color: #94a3b8; }
+    .step-connector { flex: 1; height: 1px; background: rgba(255,255,255,0.1); margin: 0 6px; }
+
+    .google-user-row {
+      display: flex; align-items: center; gap: 14px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 24px;
+    }
+    .google-avatar {
+      width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+      background: linear-gradient(135deg,#38bdf8,#6366f1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700;
+    }
+    .google-user-row img { width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0; }
+    .google-user-info { display: flex; flex-direction: column; gap: 2px; }
+    .google-user-name { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+    .google-user-email { font-size: 12px; color: #94a3b8; }
+    .google-verified {
+      margin-left: auto; font-size: 10px; font-weight: 700;
+      background: rgba(34,197,94,0.15); color: #86efac;
+      border: 1px solid rgba(34,197,94,0.25); border-radius: 20px;
+      padding: 3px 8px; letter-spacing: 0.06em; flex-shrink: 0;
+    }
+
+    .step-title { font-size: 20px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.02em; }
+    .step-subtitle { font-size: 13px; color: #94a3b8; margin-bottom: 22px; }
+
+    .input-group { margin-bottom: 15px; }
+    .input-group label {
+      display: block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #7dd3fc; margin-bottom: 6px;
+    }
+    input, select {
+      width: 100%; padding: 11px 13px; border-radius: 9px;
+      border: 1px solid rgba(255,255,255,0.12); outline: none; font-size: 14px;
+      background: rgba(255,255,255,0.09); color: white; transition: border-color 0.2s;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    input:focus { border-color: rgba(56,189,248,0.55); }
+    select option { color: black; }
+    input::placeholder { color: #64748b; }
+    .hint-text { font-size: 11px; color: #475569; margin-top: 5px; }
+    .error-text { color: #f87171; font-size: 12px; margin-top: 5px; display: none; }
+
+    #sysadminCodeGroup {
+      border: 1px solid rgba(224,82,82,0.25); border-radius: 10px;
+      padding: 12px 14px; background: rgba(224,82,82,0.05); margin-bottom: 15px;
+    }
+    #sysadminCodeGroup label { color: #f08080; }
+
+    .phone-row { display: flex; gap: 8px; }
+    .phone-prefix {
+      width: 72px; flex-shrink: 0; padding: 11px 10px; border-radius: 9px;
+      border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06);
+      color: #94a3b8; font-size: 14px; text-align: center;
+    }
+    .phone-row input { flex: 1; }
+
+    .otp-row { display: flex; gap: 8px; justify-content: center; margin: 10px 0 6px; }
+    .otp-digit {
+      width: 46px; height: 54px; border-radius: 10px; text-align: center;
+      font-size: 22px; font-weight: 700; font-family: 'Segoe UI', sans-serif;
+      border: 1.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07);
+      color: white; outline: none; transition: border-color 0.2s;
+    }
+    .otp-digit:focus { border-color: rgba(56,189,248,0.6); background: rgba(56,189,248,0.07); }
+    .otp-digit.filled { border-color: rgba(56,189,248,0.4); }
+    .otp-info { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 10px; line-height: 1.6; }
+    .otp-info strong { color: #7dd3fc; }
+    .resend-btn {
+      background: none; border: none; color: #38bdf8; font-size: 12px;
+      cursor: pointer; text-decoration: underline; padding: 0; font-family: 'Segoe UI', sans-serif;
+    }
+    .resend-btn:disabled { color: #475569; text-decoration: none; cursor: not-allowed; }
+
+    .phone-verified-badge {
+      display: none; align-items: center; gap: 8px;
+      padding: 9px 13px; border-radius: 10px; margin-top: 8px;
+      background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25);
+      color: #86efac; font-size: 12.5px; font-weight: 600;
+    }
+
+    .submit-btn {
+      width: 100%; padding: 13px; border-radius: 10px; border: none;
+      background: linear-gradient(135deg,#38bdf8,#6366f1);
+      color: white; font-weight: 700; font-size: 14px;
+      cursor: pointer; transition: 0.25s; margin-top: 6px; font-family: 'Segoe UI', sans-serif;
+    }
+    .submit-btn:hover:not(:disabled) { transform: translateY(-2px); opacity: 0.9; }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .send-otp-btn {
+      width: 100%; padding: 11px; border-radius: 9px; margin-top: 6px;
+      border: 1px solid rgba(56,189,248,0.3); background: rgba(56,189,248,0.1);
+      color: #38bdf8; font-size: 13.5px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; font-family: 'Segoe UI', sans-serif;
+    }
+    .send-otp-btn:hover:not(:disabled) { background: rgba(56,189,248,0.2); }
+    .send-otp-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .back-btn {
+      width: 100%; padding: 10px; border-radius: 10px; margin-top: 8px;
+      border: 1px solid rgba(255,255,255,0.12); background: transparent;
+      color: #64748b; font-size: 13px; cursor: pointer; transition: 0.2s; font-family: 'Segoe UI', sans-serif;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.06); color: #94a3b8; }
+
+    .spinner-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px); z-index: 100;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 14px; color: #cbd5e1; font-size: 14px;
+    }
+    .spinner-overlay.show { display: flex; }
+    .spinner {
+      width: 36px; height: 36px; border: 3px solid rgba(56,189,248,0.2);
+      border-top-color: #38bdf8; border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #recaptcha-container { margin-top: 4px; }
+  </style>
+  <link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+
+<div class="glow"></div>
+<div class="glow"></div>
+
+<div class="spinner-overlay" id="spinnerOverlay">
+  <div class="spinner"></div>
+  <span id="spinnerMsg">Setting up your profile…</span>
+</div>
+
+<div class="card">
+  <div class="steps-row">
+    <div class="step-item">
+      <div class="step-circle active" id="step1Circle">1</div>
+      <span class="step-label active" id="step1Label">Profile</span>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step-item">
+      <div class="step-circle" id="step2Circle">2</div>
+      <span class="step-label" id="step2Label">Verify phone</span>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step-item">
+      <div class="step-circle" id="step3Circle">3</div>
+      <span class="step-label" id="step3Label">Done</span>
+    </div>
+  </div>
+
+  <div class="google-user-row" id="googleUserRow">
+    <div class="google-avatar" id="googleAvatar">?</div>
+    <div class="google-user-info">
+      <span class="google-user-name" id="googleDisplayName">Loading…</span>
+      <span class="google-user-email" id="googleEmail">—</span>
+    </div>
+    <span class="google-verified">✓ Google</span>
+  </div>
+
+  <!-- STEP 1: Profile -->
+  <div id="stepProfile">
+    <div class="step-title">One last step!</div>
+    <div class="step-subtitle">Choose a display name and account type to finish setting up.</div>
+
+    <div class="input-group">
+      <label for="username">Display name / Username</label>
+      <input type="text" id="username" placeholder="e.g. Mayor's Office or Juan dela Cruz" maxlength="30">
+      <div class="hint-text">This is shown on your reports and announcements.</div>
+      <div id="usernameError" class="error-text"></div>
+    </div>
+
+    <div class="input-group">
+      <label for="role">Account type</label>
+      <select id="role">
+        <option value="community">Community Member</option>
+        <option value="lgu">LGU Personnel</option>
+        <option value="sysadmin">System Administrator</option>
+      </select>
+    </div>
+
+    <div class="input-group" id="lguCodeGroup" style="display:none;">
+      <label for="lguCode">LGU Authorization Code</label>
+      <input type="text" id="lguCode" placeholder="Enter authorization code">
+      <div id="lguError" class="error-text"></div>
+    </div>
+
+    <div class="input-group" id="lguEmpGroup" style="display:none;">
+      <label for="lguEmpId">Employee ID Number</label>
+      <input type="text" id="lguEmpId" placeholder="e.g. LGU-ANT-2024-001" maxlength="40">
+      <div class="hint-text">Your official LGU employee ID for verification.</div>
+      <div id="lguEmpError" class="error-text"></div>
+    </div>
+
+    <div id="sysadminCodeGroup" style="display:none;">
+      <label>🛡️ System Admin Authorization Code</label>
+      <input type="text" id="sysadminCode" placeholder="Enter system admin authorization code">
+      <div class="hint-text" style="color:#c07070;">Restricted access — only for authorized system administrators.</div>
+      <div id="sysadminError" class="error-text"></div>
+    </div>
+
+    <button class="submit-btn" id="nextToPhoneBtn">Next — Verify Phone →</button>
+  </div>
+
+  <!-- STEP 2: Phone -->
+  <div id="stepPhone" style="display:none;">
+    <div class="step-title">Verify your phone</div>
+    <div class="step-subtitle">We need a Philippine mobile number to verify your identity.</div>
+
+    <div class="input-group">
+      <label>Mobile number</label>
+      <div class="phone-row">
+        <div class="phone-prefix">🇵🇭 +63</div>
+        <input type="tel" id="phoneNumber" placeholder="9XX XXX XXXX" maxlength="10">
+      </div>
+      <div class="hint-text">Required under RA 11934 (SIM Registration Act) for accountability.</div>
+      <div id="phoneError" class="error-text"></div>
+    </div>
+
+    <div id="recaptcha-container"></div>
+    <button class="send-otp-btn" id="sendOtpBtn">Send OTP Code</button>
+
+    <div id="otpSection" style="display:none; margin-top:16px;">
+      <div class="otp-info">
+        Code sent to <strong id="otpSentTo">—</strong><br>
+        <span id="resendTimer">Resend in <strong id="resendCountdown">60</strong>s</span>
+        <button class="resend-btn" id="resendBtn" disabled style="display:none;">Resend code</button>
+      </div>
+      <div class="otp-row">
+        <input class="otp-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
+      </div>
+      <div id="otpError" class="error-text" style="text-align:center;"></div>
+      <button class="submit-btn" id="verifyOtpBtn" style="margin-top:10px;">Verify &amp; Complete Setup</button>
+    </div>
+
+    <div class="phone-verified-badge" id="phoneVerifiedBadge">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      Phone verified — redirecting…
+    </div>
+
+    <button class="back-btn" id="backBtn">← Back</button>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged, updateProfile,
+    RecaptchaVerifier, signInWithPhoneNumber
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDgpI9Qn8Z_gvz9lruhq5VmZ8frEUlNKN4",
+    authDomain: "disaster-map-platform.firebaseapp.com",
+    projectId: "disaster-map-platform",
+    appId: "1:741032743359:web:bbe517d850e766e6ed910a",
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let currentUser        = null;
+  let confirmationResult = null;
+  let recaptchaVerifier  = null;
+  let resendInterval     = null;
+  let savedFormData      = {};
+
+  function showSpinner(msg = "Please wait…") {
+    document.getElementById("spinnerMsg").textContent = msg;
+    document.getElementById("spinnerOverlay").classList.add("show");
+  }
+  function hideSpinner() { document.getElementById("spinnerOverlay").classList.remove("show"); }
+  function showError(id, msg) { const el=document.getElementById(id); if(el){el.textContent=msg;el.style.display="block";} }
+  function clearError(id) { const el=document.getElementById(id); if(el){el.style.display="none";el.textContent="";} }
+  function clearAllErrors() {
+    ["usernameError","lguError","lguEmpError","sysadminError","phoneError","otpError"].forEach(clearError);
+  }
+
+  // ── STEP NAVIGATION ───────────────────────────
+  function goToStep(n) {
+    document.getElementById("stepProfile").style.display = n === 1 ? "block" : "none";
+    document.getElementById("stepPhone").style.display   = n === 2 ? "block" : "none";
+    [1,2,3].forEach(i => {
+      const circle = document.getElementById(`step${i}Circle`);
+      const label  = document.getElementById(`step${i}Label`);
+      if (i < n)       { circle.className="step-circle done"; circle.textContent="✓"; label.className="step-label"; }
+      else if (i === n){ circle.className="step-circle active"; label.className="step-label active"; }
+      else             { circle.className="step-circle"; label.className="step-label"; }
+    });
+  }
+
+  // ── AUTH STATE ────────────────────────────────
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "login.html"; return; }
+    const existing = await getDoc(doc(db, "users", user.uid));
+    if (existing.exists()) { window.location.href = "index.html"; return; }
+    currentUser = user;
+
+    document.getElementById("googleDisplayName").textContent = user.displayName || "Google User";
+    document.getElementById("googleEmail").textContent = user.email || "—";
+
+    if (user.photoURL) {
+      const avatarEl = document.getElementById("googleAvatar");
+      avatarEl.outerHTML = `<img src="${user.photoURL}" id="googleAvatar" alt="avatar"
+        style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;">`;
+    } else {
+      const initials = (user.displayName || user.email || "?").slice(0, 2).toUpperCase();
+      document.getElementById("googleAvatar").textContent = initials;
+    }
+    if (user.displayName) document.getElementById("username").value = user.displayName;
+  });
+
+  // ── ROLE TOGGLE ───────────────────────────────
+  document.getElementById("role").addEventListener("change", (e) => {
+    const role = e.target.value;
+    document.getElementById("lguCodeGroup").style.display      = role==="lgu"      ? "block":"none";
+    document.getElementById("lguEmpGroup").style.display       = role==="lgu"      ? "block":"none";
+    document.getElementById("sysadminCodeGroup").style.display = role==="sysadmin" ? "block":"none";
+  });
+
+  // ── STEP 1 → STEP 2 ───────────────────────────
+  document.getElementById("nextToPhoneBtn").addEventListener("click", async () => {
+    if (!currentUser) return;
+    clearAllErrors();
+
+    const username       = document.getElementById("username").value.trim();
+    const role           = document.getElementById("role").value;
+    const enteredLguCode = document.getElementById("lguCode").value.trim();
+    const empId          = document.getElementById("lguEmpId").value.trim();
+    const enteredSysCode = document.getElementById("sysadminCode").value.trim();
+
+    if (!username)           { showError("usernameError","Display name is required."); return; }
+    if (username.length < 3) { showError("usernameError","Must be at least 3 characters."); return; }
+    if (!/^[a-zA-Z0-9 _'\-\.]+$/.test(username)) { showError("usernameError","Only letters, numbers, spaces, apostrophes, and hyphens allowed."); return; }
+
+    let finalRole = "community";
+
+    if (role === "lgu") {
+      if (!enteredLguCode) { showError("lguError","LGU authorization code is required."); return; }
+      if (!empId)          { showError("lguEmpError","Employee ID number is required."); return; }
+      showSpinner("Checking LGU authorization…");
+      const secretDoc = await getDoc(doc(db,"system_config","access"));
+      hideSpinner();
+      if (!secretDoc.exists()) { showError("lguError","System configuration error."); return; }
+      if (enteredLguCode !== secretDoc.data().lguSecret) { showError("lguError","Invalid LGU authorization code."); return; }
+      finalRole = "lgu";
+    } else if (role === "sysadmin") {
+      if (!enteredSysCode) { showError("sysadminError","System admin authorization code is required."); return; }
+      showSpinner("Checking system admin authorization…");
+      const secretDoc = await getDoc(doc(db,"system_config","access"));
+      hideSpinner();
+      if (!secretDoc.exists()) { showError("sysadminError","System configuration error."); return; }
+      if (enteredSysCode !== secretDoc.data().sysadminSecret) { showError("sysadminError","Invalid system admin authorization code."); return; }
+      finalRole = "sysadmin";
+    }
+
+    savedFormData = { username, role: finalRole, empId: empId || null };
+    initRecaptcha();
+    goToStep(2);
+  });
+
+  // ── BACK ──────────────────────────────────────
+  document.getElementById("backBtn").addEventListener("click", () => {
+    document.getElementById("phoneNumber").disabled      = false;
+    document.getElementById("sendOtpBtn").style.display  = "block";
+    document.getElementById("otpSection").style.display  = "none";
+    document.getElementById("phoneVerifiedBadge").style.display = "none";
+    clearAllErrors();
+    goToStep(1);
+  });
+
+  // ── RECAPTCHA — always fresh, never double-rendered ──
+  function initRecaptcha() {
+    // Clear the DOM container first
+    const container = document.getElementById("recaptcha-container");
+    container.innerHTML = "";
+
+    // Destroy old verifier if exists
+    if (recaptchaVerifier) {
+      try { recaptchaVerifier.clear(); } catch(e) {}
+      recaptchaVerifier = null;
+    }
+
+    recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+      size: "invisible",
+      callback: () => {}
+    });
+    recaptchaVerifier.render();
+  }
+
+  // ── SEND OTP ──────────────────────────────────
+  document.getElementById("sendOtpBtn").addEventListener("click", async () => {
+    clearError("phoneError");
+    const raw = document.getElementById("phoneNumber").value.replace(/\D/g,"");
+
+    if (!raw || raw.length !== 10 || !raw.startsWith("9")) {
+      showError("phoneError","Enter a valid 10-digit Philippine mobile number (e.g. 9171234567).");
+      return;
+    }
+
+    showSpinner("Sending verification code…");
+    try {
+      confirmationResult = await signInWithPhoneNumber(auth, "+63"+raw, recaptchaVerifier);
+      hideSpinner();
+
+      document.getElementById("otpSentTo").textContent    = "+63 "+raw;
+      document.getElementById("sendOtpBtn").style.display  = "none";
+      document.getElementById("otpSection").style.display  = "block";
+      document.getElementById("phoneNumber").disabled      = true;
+      document.querySelector(".otp-digit").focus();
+      startResendTimer();
+
+    } catch(err) {
+      hideSpinner();
+      console.error("sendOTP:", err);
+      showError("phoneError",
+        err.code === "auth/too-many-requests"    ? "Too many attempts. Please wait before requesting another code." :
+        err.code === "auth/invalid-phone-number" ? "Invalid phone number format. Please check and try again." :
+        err.code === "auth/billing-not-enabled"  ? "SMS unavailable on this plan. Please use a test number." :
+        "Failed to send code. Please try again."
+      );
+      // Always reinitialize reCAPTCHA after failure
+      initRecaptcha();
+    }
+  });
+
+  // ── OTP DIGITS ────────────────────────────────
+  const otpDigits = document.querySelectorAll(".otp-digit");
+  otpDigits.forEach((input, i) => {
+    input.addEventListener("input", () => {
+      input.value = input.value.replace(/\D/g,"").slice(0,1);
+      input.classList.toggle("filled", input.value.length > 0);
+      if (input.value && i < otpDigits.length-1) otpDigits[i+1].focus();
+    });
+    input.addEventListener("keydown", e => {
+      if (e.key==="Backspace" && !input.value && i>0) otpDigits[i-1].focus();
+    });
+    input.addEventListener("paste", e => {
+      e.preventDefault();
+      const pasted = (e.clipboardData||window.clipboardData).getData("text").replace(/\D/g,"");
+      pasted.split("").forEach((ch,j) => {
+        if (otpDigits[i+j]) { otpDigits[i+j].value=ch; otpDigits[i+j].classList.add("filled"); }
+      });
+      const next = otpDigits[Math.min(i+pasted.length, otpDigits.length-1)];
+      if (next) next.focus();
+    });
+  });
+
+  function getOtpValue() { return [...otpDigits].map(d=>d.value).join(""); }
+
+  // ── RESEND TIMER ──────────────────────────────
+  function startResendTimer() {
+    let seconds = 60;
+    document.getElementById("resendCountdown").textContent = seconds;
+    document.getElementById("resendTimer").style.display   = "inline";
+    document.getElementById("resendBtn").style.display     = "none";
+    document.getElementById("resendBtn").disabled          = true;
+    clearInterval(resendInterval);
+    resendInterval = setInterval(() => {
+      seconds--;
+      document.getElementById("resendCountdown").textContent = seconds;
+      if (seconds <= 0) {
+        clearInterval(resendInterval);
+        document.getElementById("resendTimer").style.display = "none";
+        document.getElementById("resendBtn").style.display   = "inline";
+        document.getElementById("resendBtn").disabled        = false;
+      }
+    }, 1000);
+  }
+
+  document.getElementById("resendBtn").addEventListener("click", () => {
+    document.getElementById("resendBtn").disabled        = true;
+    document.getElementById("phoneNumber").disabled      = false;
+    document.getElementById("sendOtpBtn").style.display  = "block";
+    document.getElementById("otpSection").style.display  = "none";
+    otpDigits.forEach(d => { d.value=""; d.classList.remove("filled"); });
+    initRecaptcha();
+    startResendTimer();
+  });
+
+  // ── VERIFY OTP + SAVE PROFILE ─────────────────
+  document.getElementById("verifyOtpBtn").addEventListener("click", async () => {
+    const otp    = getOtpValue();
+    const otpErr = document.getElementById("otpError");
+    otpErr.style.display = "none";
+
+    if (otp.length !== 6) { otpErr.textContent="Please enter the full 6-digit code."; otpErr.style.display="block"; return; }
+    if (!confirmationResult) { otpErr.textContent="Session expired. Please go back and request a new code."; otpErr.style.display="block"; return; }
+
+    const btn = document.getElementById("verifyOtpBtn");
+    btn.disabled = true; btn.textContent = "Verifying…";
+    showSpinner("Verifying phone number…");
+
+    try {
+      await confirmationResult.confirm(otp);
+      showSpinner("Saving your profile…");
+
+      await updateProfile(currentUser, { displayName: savedFormData.username });
+
+      const rawPhone = document.getElementById("phoneNumber").value.replace(/\D/g,"");
+      await setDoc(doc(db,"users",currentUser.uid), {
+        username:      savedFormData.username,
+        email:         currentUser.email,
+        role:          savedFormData.role,
+        phone:         "+63"+rawPhone,
+        empId:         savedFormData.empId || null,
+        phoneVerified: true,
+        createdAt:     new Date()
+      });
+
+      hideSpinner();
+      document.getElementById("otpSection").style.display         = "none";
+      document.getElementById("phoneVerifiedBadge").style.display = "flex";
+      document.getElementById("step3Circle").className            = "step-circle done";
+      document.getElementById("step3Circle").textContent          = "✓";
+      document.getElementById("step3Label").className             = "step-label";
+
+      setTimeout(() => { window.location.href = "index.html"; }, 1500);
+
+    } catch(err) {
+      hideSpinner();
+      btn.disabled = false; btn.textContent = "Verify & Complete Setup";
+      console.error("verifyOTP:", err);
+      otpErr.textContent =
+        err.code === "auth/invalid-verification-code" ? "Incorrect code. Please check and try again." :
+        err.code === "auth/code-expired"              ? "Code has expired. Please request a new one." :
+        "Something went wrong. Please try again.";
+      otpErr.style.display = "block";
+    }
+  });
+</script>
+</body>
+</html>

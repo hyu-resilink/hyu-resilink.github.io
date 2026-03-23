@@ -1,0 +1,385 @@
+/*
+ * mobile.css
+ * Responsive styles for DisasterMap / Resilink
+ * Link this in every HTML file:
+ *   <link rel="stylesheet" href="mobile.css">
+ * Place the <link> AFTER all other <style> or <link> tags so it takes priority.
+ */
+
+/* ============================================================
+   SHARED UTILITIES
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Prevent horizontal scroll on the whole page */
+  html, body {
+    overflow-x: hidden;
+  }
+}
+
+
+/* ============================================================
+   INDEX.HTML  —  MAIN APP
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* ── Sidebar ── */
+  .sidebar {
+    transform: translateX(calc(-1 * var(--sidebar-w)));
+    z-index: 2000; /* sit above everything when open */
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 30px rgba(0,0,0,0.6);
+  }
+
+  /* Dim overlay behind open sidebar */
+  .sidebar.open::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    left: var(--sidebar-w);
+    background: rgba(0,0,0,0.45);
+    z-index: -1;
+  }
+
+  #main-content { left: 0 !important; }
+
+  #sidebarOpenBtn {
+    display: flex !important;
+    top: 10px;
+    left: 10px;
+  }
+
+  /* ── Form panel (report submission) ── */
+  #formPanel {
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    top: 8px;
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+
+  /* ── Leaflet map controls ── */
+  .leaflet-control-layers {
+    font-size: 13px !important;
+  }
+  .map-legend {
+    font-size: 11px;
+    padding: 10px 12px;
+    min-width: 140px;
+  }
+  .legend-row { font-size: 11px; }
+
+  /* ── Logs page ── */
+  .logs-page, .dashboard-page {
+    padding: 16px 12px;
+  }
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .section-title { font-size: 17px; }
+  .section-controls {
+    width: 100%;
+    flex-direction: column;
+  }
+  .filter-select { width: 100%; }
+
+  /* ── Reports grid → single column ── */
+  .reports-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── Dashboard stats → 2 columns on phone ── */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .stat-value { font-size: 24px; }
+  .dash-recent-row { font-size: 11px; gap: 8px; }
+
+  /* ── Announcements ── */
+  .ann-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .ann-card { padding: 14px 14px; }
+  .ann-title { font-size: 14px; }
+
+  /* ── Heritage panel → full screen ── */
+  #heritagePanel {
+    width: 100% !important;
+    right: -100% !important;
+    border-left: none;
+  }
+  #heritagePanel.open {
+    right: 0 !important;
+  }
+
+  /* ── Guides panel → full screen ── */
+  #guidesPanel {
+    width: 100% !important;
+    right: -100% !important;
+  }
+  #guidesPanel.open {
+    right: 0 !important;
+  }
+  .gp-disaster-pills {
+    gap: 5px;
+  }
+  .gp-disaster-pill {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+  .gp-phase-tabs { gap: 4px; }
+  .gp-phase-tab  { font-size: 11px; padding: 8px 4px; }
+
+  /* ── Profile panel ── */
+  #profilePanel {
+    width: 100% !important;
+    left: -100% !important;
+  }
+  #profilePanel.open {
+    left: 0 !important;
+  }
+
+  /* ── Evacuation popup ── */
+  .evac-popup { width: 260px; }
+  .evac-capacity-row { flex-wrap: wrap; gap: 8px; }
+  .evac-num-input    { width: 80px; }
+
+  /* ── Incident popup ── */
+  .incident-popup { width: 210px; }
+
+  /* ── Trust action buttons ── */
+  .trust-actions { flex-direction: column; }
+  .trust-btn     { flex: unset; width: 100%; }
+
+  /* ── GPS button / form actions ── */
+  .fp-actions { flex-direction: column; }
+  #submitIncident, #cancelIncident { width: 100%; }
+
+  /* ── Popup edit form ── */
+  .popup-edit-form { width: 100%; }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .gp-phase-tab { font-size: 10px; }
+  .evac-popup   { width: 230px; }
+}
+
+
+/* ============================================================
+   ADMIN.HTML  —  SYSTEM ADMIN PANEL
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* ── Top bar ── */
+  .admin-topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .admin-topbar-sub { display: none; } /* hide email on small screens */
+
+  /* ── Tab nav → scrollable row ── */
+  .admin-tabs {
+    padding: 0 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+  .admin-tab {
+    padding: 10px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ── Content area ── */
+  .admin-content {
+    padding: 120px 14px 30px;
+  }
+
+  /* ── Stats row → 2 columns ── */
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .stat-val { font-size: 22px; }
+
+  /* ── Tables → horizontal scroll ── */
+  .admin-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table { min-width: 580px; }
+  thead th { font-size: 10px; padding: 8px 10px; }
+  tbody td  { font-size: 12px; padding: 9px 10px; }
+  .td-name  { max-width: 120px; }
+
+  /* ── Role select + delete button ── */
+  .role-select { font-size: 11px; padding: 3px 6px; }
+  .tbl-btn     { font-size: 10px; padding: 3px 7px; }
+
+  /* ── Archive grid → single column ── */
+  .archive-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── Panel header ── */
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .panel-title { font-size: 17px; }
+
+  /* ── Modal ── */
+  .modal-box { width: 90vw; padding: 22px; }
+}
+
+@media (max-width: 380px) {
+  .stats-row { grid-template-columns: 1fr; }
+  .admin-tab  { padding: 8px 10px; font-size: 11px; }
+}
+
+
+/* ============================================================
+   LOGIN.HTML
+   ============================================================ */
+@media (max-width: 480px) {
+  /* Login card already centered — just tighten padding */
+  .card {
+    padding: 28px 22px;
+    width: 100%;
+    border-radius: 14px;
+  }
+  h2 { font-size: 18px; }
+
+  .method-tabs { margin-bottom: 16px; }
+  .method-tab  { font-size: 11px; padding: 8px 6px; }
+
+  .google-btn  { font-size: 13px; }
+  .login-btn   { padding: 12px; font-size: 13px; }
+
+  .otp-row     { gap: 5px; }
+  .otp-digit   { width: 40px; height: 48px; font-size: 18px; }
+
+  /* Link modal */
+  .link-modal  { width: 90vw; padding: 24px 18px; }
+}
+
+
+/* ============================================================
+   REGISTER.HTML
+   ============================================================ */
+@media (max-width: 480px) {
+  .card {
+    padding: 26px 20px;
+    width: 100%;
+    border-radius: 14px;
+  }
+
+  .steps-row { margin-bottom: 20px; }
+  .step-label { font-size: 10px; }
+  .step-connector { margin: 0 3px; }
+
+  h2 { font-size: 18px; }
+  .subtitle { font-size: 12px; }
+
+  .google-btn { font-size: 13px; padding: 10px 12px; }
+  .next-btn, .submit-btn { font-size: 13px; padding: 12px; }
+  .back-btn   { font-size: 12px; }
+
+  .phone-prefix { width: 62px; font-size: 12px; padding: 11px 6px; }
+
+  .otp-row   { gap: 5px; }
+  .otp-digit { width: 40px; height: 48px; font-size: 18px; }
+
+  /* Sysadmin code group */
+  #sysadminCodeGroup { padding: 10px 12px; }
+
+  /* Link modal */
+  .link-modal { width: 90vw; padding: 22px 16px; }
+}
+
+
+/* ============================================================
+   COMPLETE-PROFILE.HTML
+   ============================================================ */
+@media (max-width: 480px) {
+  .card {
+    padding: 26px 20px;
+    width: 100%;
+    border-radius: 14px;
+  }
+
+  .steps-row   { margin-bottom: 18px; }
+  .step-label  { font-size: 10px; }
+  .step-circle { width: 24px; height: 24px; font-size: 10px; }
+
+  .google-user-row { padding: 10px 12px; gap: 10px; }
+  .google-user-name { font-size: 13px; }
+  .google-user-email { font-size: 11px; }
+  .google-verified { font-size: 9px; padding: 2px 6px; }
+
+  .step-title    { font-size: 18px; }
+  .step-subtitle { font-size: 12px; }
+
+  .submit-btn, .send-otp-btn { font-size: 13px; padding: 11px; }
+  .back-btn { font-size: 12px; }
+
+  .phone-prefix { width: 62px; font-size: 12px; padding: 11px 6px; }
+
+  .otp-row   { gap: 5px; }
+  .otp-digit { width: 40px; height: 48px; font-size: 18px; }
+
+  #sysadminCodeGroup { padding: 10px 12px; }
+}
+
+
+/* ============================================================
+   TOUCH IMPROVEMENTS  (all pages)
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Minimum tap target size per Material / Apple HIG guidelines */
+  button, select, input[type="text"],
+  input[type="email"], input[type="password"],
+  input[type="tel"], input[type="number"],
+  .nav-item, .sub-item, .gp-disaster-pill,
+  .gp-phase-tab, .gp-acc-toggle,
+  .evac-status-btn, .evac-level-btn,
+  .hs-status-btn, .hs-risk-btn,
+  .trust-btn, .popup-btn, .popup-delete,
+  .ann-submit-btn, .ann-delete-btn {
+    min-height: 44px;
+  }
+
+  /* Slightly larger text on inputs for mobile readability */
+  input, select, textarea {
+    font-size: 16px !important; /* prevents iOS auto-zoom on focus */
+  }
+}
+
+
+/* ============================================================
+   HIDE HAMBURGER BUTTON ON MOBILE
+   (mobile uses home screen cards instead — no sidebar needed)
+   ============================================================ */
+@media (max-width: 768px) {
+  #sidebarOpenBtn { display: none !important; }
+}
+
+/* ============================================================
+   FIX — Form panel must not go full width on desktop
+   ============================================================ */
+@media (min-width: 769px) {
+  #formPanel {
+    left: calc(var(--sidebar-w) + 14px) !important;
+    right: auto !important;
+    width: 278px !important;
+  }
+}

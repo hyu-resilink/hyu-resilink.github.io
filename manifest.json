@@ -1,0 +1,27 @@
+{
+  "name": "Resilink",
+  "short_name": "Resilink",
+  "description": "Community Disaster & Cultural Heritage Monitoring Platform",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f1623",
+  "theme_color": "#5ba4c8",
+  "orientation": "portrait-primary",
+  "lang": "en-PH",
+  "categories": ["utilities", "emergency"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

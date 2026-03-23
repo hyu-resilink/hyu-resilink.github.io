@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Survival Guides — Resilink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#5ba4c8">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --teal:      #5ba4c8;
+      --teal-2:    #4dcfb0;
+      --indigo:    #7c82d4;
+      --green:     #5db88a;
+      --amber:     #d4a054;
+      --slate:     #9aafc4;
+      --slate-dim: #5c7490;
+      --white:     #e8f0f8;
+      --navy:      #0f1623;
+      --border:    rgba(255,255,255,0.09);
+      --glass:     rgba(255,255,255,0.04);
+      --font:      'DM Sans', sans-serif;
+      --mono:      'DM Mono', monospace;
+      --display:   'Space Grotesk', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: var(--font); background: var(--navy); color: var(--white); }
+
+    /* ── BACKGROUND ── */
+    .bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 50% at 10% 15%, rgba(91,164,200,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 90% 90%, rgba(124,130,212,0.06) 0%, transparent 70%),
+        linear-gradient(160deg, #0d1520 0%, #111827 40%, #0f1d2a 100%);
+    }
+
+    /* ── ACCENT BAR ── */
+    .accent-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 100;
+      background: linear-gradient(90deg, var(--teal), var(--indigo), var(--teal-2), var(--teal));
+      background-size: 200% 100%; animation: shimmer 4s linear infinite;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* ── HEADER ── */
+    .header {
+      position: fixed; top: 3px; left: 0; right: 0; z-index: 90;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(13, 20, 33, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(91,164,200,0.1);
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-icon {
+      width: 34px; height: 34px; border-radius: 9px; font-size: 16px;
+      background: linear-gradient(135deg, var(--teal), var(--indigo));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(91,164,200,0.25); flex-shrink: 0;
+    }
+    .header-title { font-family: var(--display); font-size: 15px; font-weight: 700; color: var(--white); }
+    .header-sub { font-size: 10px; color: var(--slate-dim); }
+
+    .offline-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 20px;
+      background: rgba(212,160,84,0.1);
+      border: 1px solid rgba(212,160,84,0.25);
+      color: #e8be7a; font-size: 10px; font-weight: 700;
+      font-family: var(--mono); letter-spacing: 0.06em;
+      display: none; /* shown when offline */
+    }
+    .offline-badge.show { display: inline-flex; }
+
+    .login-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 9px;
+      border: 1px solid rgba(91,164,200,0.3);
+      background: rgba(91,164,200,0.08);
+      color: var(--teal); font-family: var(--font);
+      font-size: 12.5px; font-weight: 600;
+      text-decoration: none; transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .login-btn:active { background: rgba(91,164,200,0.18); }
+
+    /* ── MAIN CONTENT ── */
+    .main {
+      position: relative; z-index: 1;
+      padding: 80px 16px 32px;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ── GUIDE PANEL (reuse same styles as main app) ── */
+    .gp-tabs-row {
+      display: flex; border-bottom: 1px solid rgba(91,164,200,0.1);
+      margin-bottom: 0; position: sticky; top: 55px; z-index: 80;
+      background: rgba(13,20,33,0.97); backdrop-filter: blur(16px);
+    }
+    .gp-top-tab {
+      flex: 1; padding: 12px 10px; border: none; background: transparent;
+      color: var(--slate-dim); font-family: var(--font); font-size: 13px;
+      font-weight: 600; cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+    }
+    .gp-top-tab:hover { color: var(--slate); background: rgba(255,255,255,0.03); }
+    .gp-top-tab.active { color: var(--teal); border-bottom-color: var(--teal); background: rgba(91,164,200,0.05); }
+
+    .gp-tab-content { display: none; padding: 16px 0 24px; }
+    .gp-tab-content.active { display: block; }
+
+    .gp-disaster-pills { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 16px; }
+    .gp-disaster-pill {
+      display: flex; align-items: center; gap: 6px; padding: 7px 13px;
+      border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600;
+      font-family: var(--font); background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1); color: var(--slate); transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .gp-disaster-pill:active { background: rgba(255,255,255,0.08); }
+    .gp-disaster-pill.active {
+      background: color-mix(in srgb, var(--pill-color) 15%, transparent);
+      border-color: color-mix(in srgb, var(--pill-color) 40%, transparent);
+      color: var(--pill-color);
+    }
+    .gp-disaster-content { display: none; }
+    .gp-disaster-content.active { display: block; animation: fadeUp 0.25s ease both; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+    .gp-disaster-header {
+      display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+      border-radius: 12px; margin-bottom: 14px;
+      background: color-mix(in srgb, var(--guide-color) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--guide-color) 22%, transparent);
+    }
+    .gp-disaster-big-icon { font-size: 30px; flex-shrink: 0; line-height: 1; }
+    .gp-disaster-name { font-family: var(--display); font-size: 16px; font-weight: 700; color: #e0ecfa; }
+    .gp-disaster-count { font-size: 11px; color: var(--slate-dim); margin-top: 2px; }
+
+    .gp-phase-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+    .gp-phase-tab {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 6px; border-radius: 9px; cursor: pointer; transition: all 0.18s;
+      font-size: 12px; font-weight: 600; font-family: var(--font);
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      color: var(--slate-dim); -webkit-tap-highlight-color: transparent;
+    }
+    .gp-phase-tab.active {
+      background: color-mix(in srgb, var(--phase-color) 12%, transparent);
+      border-color: color-mix(in srgb, var(--phase-color) 30%, transparent);
+      color: var(--phase-color);
+    }
+    .gp-phase-count {
+      font-size: 10px; font-weight: 700; font-family: var(--mono);
+      background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 10px;
+    }
+    .gp-phase-tab.active .gp-phase-count { background: color-mix(in srgb, var(--phase-color) 20%, transparent); }
+    .gp-phase-panel { display: none; }
+    .gp-phase-panel.active { display: block; animation: fadeUp 0.2s ease both; }
+
+    .gp-guide-list { list-style: none; display: flex; flex-direction: column; gap: 9px; padding: 0; }
+    .gp-guide-item {
+      display: flex; align-items: flex-start; gap: 11px; padding: 11px 13px;
+      border-radius: 10px; background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .gp-guide-num {
+      flex-shrink: 0; width: 24px; height: 24px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; font-family: var(--mono); line-height: 1;
+    }
+    .gp-guide-text { font-size: 13px; color: var(--slate); line-height: 1.58; padding-top: 2px; }
+
+    .gp-resource-content { display: none; }
+    .gp-resource-content.active { display: block; animation: fadeUp 0.25s ease both; }
+    .gp-accordion { display: flex; flex-direction: column; gap: 8px; }
+    .gp-acc-item {
+      border-radius: 11px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);
+    }
+    .gp-acc-toggle {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 13px 16px; cursor: pointer; border: none;
+      background: transparent; color: var(--slate); font-family: var(--font);
+      font-size: 13px; font-weight: 600; transition: all 0.18s; text-align: left;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .gp-acc-toggle:active { background: rgba(255,255,255,0.04); }
+    .gp-acc-item.open .gp-acc-toggle {
+      color: var(--acc-color);
+      background: color-mix(in srgb, var(--acc-color) 6%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--acc-color) 15%, transparent);
+    }
+    .gp-acc-title { flex: 1; }
+    .gp-acc-chevron { width: 15px; height: 15px; flex-shrink: 0; transition: transform 0.25s; }
+    .gp-acc-item.open .gp-acc-chevron { transform: rotate(180deg); }
+    .gp-acc-body { display: none; padding: 14px 16px 16px; }
+    .gp-acc-item.open .gp-acc-body { display: block; animation: fadeUp 0.2s ease both; }
+
+    .gp-resource-list { list-style: none; display: flex; flex-direction: column; gap: 8px; padding: 0; }
+    .gp-resource-item { display: flex; align-items: flex-start; gap: 10px; }
+    .gp-resource-num {
+      flex-shrink: 0; font-size: 10px; font-weight: 700; font-family: var(--mono);
+      width: 20px; text-align: right; padding-top: 3px; opacity: 0.7;
+    }
+    .gp-resource-text { font-size: 13px; color: var(--slate); line-height: 1.58; }
+
+    /* ── EMERGENCY BANNER ── */
+    .emergency-banner {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-radius: 12px; margin-bottom: 20px;
+      background: rgba(224,82,82,0.08); border: 1px solid rgba(224,82,82,0.2);
+    }
+    .emergency-banner-icon { font-size: 20px; flex-shrink: 0; }
+    .emergency-banner-text { font-size: 13px; color: #d98080; line-height: 1.5; }
+    .emergency-banner-text strong { color: #f08080; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(91,164,200,0.18); border-radius: 10px; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      .header { padding: 10px 14px; }
+      .header-title { font-size: 14px; }
+      .header-sub { display: none; }
+      .main { padding: 72px 12px 32px; }
+      .emergency-banner { padding: 10px 12px; }
+      .emergency-banner-icon { font-size: 17px; }
+      .emergency-banner-text { font-size: 12px; }
+      .gp-top-tab { font-size: 12px; padding: 10px 8px; }
+      .gp-disaster-pills { gap: 5px; }
+      .gp-disaster-pill { font-size: 11px; padding: 6px 10px; }
+      .gp-disaster-header { padding: 12px; gap: 10px; }
+      .gp-disaster-big-icon { font-size: 24px; }
+      .gp-disaster-name { font-size: 14px; }
+      .gp-phase-tabs { gap: 4px; }
+      .gp-phase-tab { font-size: 11px; padding: 8px 4px; }
+      .gp-guide-item { padding: 10px 11px; gap: 9px; }
+      .gp-guide-text { font-size: 12.5px; }
+      .gp-acc-toggle { padding: 11px 13px; font-size: 12.5px; }
+      .gp-resource-text { font-size: 12.5px; }
+
+      /* Minimum tap target size */
+      .gp-disaster-pill,
+      .gp-phase-tab,
+      .gp-acc-toggle,
+      .gp-top-tab,
+      .login-btn { min-height: 44px; }
+    }
+
+    @media (max-width: 480px) {
+      .gp-disaster-pill { font-size: 10.5px; padding: 5px 8px; }
+      .gp-phase-tab { font-size: 10px; }
+      .login-btn { font-size: 11px; padding: 6px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="accent-bar"></div>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-icon">📚</div>
+    <div>
+      <div class="header-title">Survival Guides</div>
+      <div class="header-sub">Resilink — Emergency Reference</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span class="offline-badge" id="offlineBadge">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="1" y1="1" x2="23" y2="23"/>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/>
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>
+      </svg>
+      OFFLINE
+    </span>
+    <a href="login.html" class="login-btn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+        <polyline points="10 17 15 12 10 7"/>
+        <line x1="15" y1="12" x2="3" y2="12"/>
+      </svg>
+      Sign In
+    </a>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- Emergency note -->
+  <div class="emergency-banner">
+    <span class="emergency-banner-icon">🆘</span>
+    <div class="emergency-banner-text">
+      <strong>Emergency access mode.</strong>
+      These guides are available without internet or login.
+      Sign in when online for full access to the live map and announcements.
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="gp-tabs-row">
+    <button class="gp-top-tab active" data-top-tab="disaster">
+      <span>⚠️</span> Disaster Guides
+    </button>
+    <button class="gp-top-tab" data-top-tab="resources">
+      <span>🌱</span> Resource Guides
+    </button>
+  </div>
+
+  <div id="gpBody">
+
+    <!-- DISASTER GUIDES TAB -->
+    <div class="gp-tab-content active" id="gp-tab-disaster"></div>
+
+    <!-- RESOURCE GUIDES TAB -->
+    <div class="gp-tab-content" id="gp-tab-resources"></div>
+
+  </div>
+</div>
+
+<script type="module">
+  // ── Import the same guide data from guides.js ──
+  // We inline a minimal copy here so this page works fully standalone offline
+
+  const DISASTER_GUIDES = [
+    { id:"typhoon",   icon:"🌀", name:"Typhoon",    color:"#5ba4c8",
+      before:["Monitor PAGASA weather bulletins and storm signals regularly.","Prepare a Go Bag with 3-day food supply, water (1 gallon/person/day), flashlight, batteries, first aid kit, important documents, and medicines.","Secure loose objects outside (furniture, pots, signboards) that could become projectiles.","Reinforce doors and windows. Cover windows with storm shutters or plywood.","Know your barangay's designated evacuation center and the safest route to get there.","Charge all devices and power banks. Keep a battery-powered or hand-crank radio.","Fill containers, bathtubs, and drums with clean water in case supply gets cut.","Unplug electrical appliances and turn off the main breaker if flooding is expected.","Inform family members of your emergency plan and meeting point.","Keep emergency contact numbers saved offline: NDRRMC (911), local barangay hotline."],
+      during:["Stay indoors and away from windows, glass doors, and skylights.","Do NOT go outside during the eye of the storm — the other side of the eyewall is equally dangerous.","If flooding begins, move to higher floors immediately. Do not wait.","Avoid using candles near flammable materials. Use flashlights instead.","Do not use generators, grills, or stoves indoors — carbon monoxide risk.","If in a vehicle caught by floodwaters, abandon it and move to higher ground on foot.","Listen to official updates only. Avoid spreading unverified information.","Stay away from rivers, drainage canals, and storm drains.","If the roof begins to lift, get under a sturdy table and hold on.","Keep your Go Bag within reach at all times."],
+      after:["Wait for the official 'all clear' signal from local authorities before going outside.","Inspect your home for structural damage before re-entering.","Do not wade through floodwater — it may be electrically charged or contaminated.","Document all property damage with photos for insurance and relief claims.","Boil water before drinking until water safety advisories are lifted.","Watch for fallen power lines — stay at least 10 meters away and report immediately.","Help elderly, disabled, and vulnerable neighbors check on their safety.","Do not eat food that has been submerged in floodwater.","Clean and disinfect your home to prevent leptospirosis and other waterborne diseases.","Report damage to your barangay for official assessment and relief coordination."] },
+    { id:"flood",     icon:"🌊", name:"Flood",      color:"#4dcfb0",
+      before:["Know your flood risk zone — check if your area is in a flood-prone barangay.","Elevate electrical outlets, switches, and appliances above potential flood levels.","Store important documents (IDs, land titles, insurance) in waterproof containers.","Prepare emergency supplies: water, food, medicine, flashlight, extra clothes.","Keep sandbags ready to place at door thresholds if flooding is expected.","Know the location of the nearest evacuation center and two exit routes from your home.","Never store hazardous chemicals or fuels in basement or ground-floor areas.","Install check valves in plumbing to prevent floodwater from backing up into drains.","Clear gutters, drains, and canals near your property of debris regularly.","Register vulnerable family members (elderly, PWDs) with your barangay for priority evacuation."],
+      during:["Evacuate immediately when told to — do not wait for water to enter your home.","Move to the highest floor or roof if evacuation is impossible and water rises.","Never walk through moving water more than ankle-deep — currents are deceptive.","If driving, turn around if the road is flooded — 'Turn Around, Don't Drown.'","Disconnect all electrical appliances before floodwater reaches them.","Do not touch electrical equipment in wet conditions.","Avoid contact with floodwater — it carries sewage, chemicals, and disease.","Signal for help using a whistle, bright cloth, or flashlight from an elevated position.","Keep children and pets away from floodwaters at all times.","Stay updated through radio or official social media channels only."],
+      after:["Return home only when authorities confirm it is safe.","Wear rubber boots and gloves when cleaning flood-damaged areas.","Pump out flooded basements gradually — pumping too fast can cause wall collapse.","Check for gas leaks before using any flame or switch inside the house.","Throw away all food that came in contact with floodwater — even canned goods if dented.","Disinfect all surfaces, utensils, and items that touched floodwater with bleach solution.","Watch for signs of mold within 24–48 hours and address immediately.","Do not let children play in or near receding floodwaters.","Report damaged roads, bridges, and utilities to your barangay or LGU.","Seek medical attention immediately if you develop fever, rashes, or diarrhea after flood exposure."] },
+    { id:"earthquake", icon:"🌍", name:"Earthquake", color:"#f4845f",
+      before:["Identify safe spots in each room: under sturdy tables, against interior walls away from windows.","Identify danger zones: near windows, mirrors, hanging objects, tall furniture, and outside walls.","Secure heavy furniture (bookshelves, cabinets, refrigerators) to walls with brackets.","Store breakable and heavy items on lower shelves.","Know how to shut off gas, water, and electricity at the main switches.","Prepare an emergency kit: water, food, first aid, flashlight, whistle, dust mask.","Practice 'Drop, Cover, and Hold On' with all household members regularly.","Identify open areas near your home free from buildings, trees, and power lines.","Keep shoes near your bed in case you need to walk through broken glass at night.","Learn basic first aid and CPR."],
+      during:["DROP to your hands and knees immediately.","Take COVER under a sturdy table or desk, or against an interior wall away from windows.","HOLD ON and protect your head and neck with your arms until shaking stops.","If no table is nearby, get against an interior wall, drop down, and cover your head.","Do NOT run outside during shaking — most injuries occur when people try to move.","If outdoors, move away from buildings, streetlights, and utility wires.","If in a vehicle, pull over away from buildings, trees, and overpasses. Stay inside.","If in bed, stay there and cover your head with a pillow.","Do NOT use elevators.","Expect aftershocks — they can be as strong as the initial quake."],
+      after:["Check yourself and others for injuries before moving around.","Expect and prepare for aftershocks — move to an open area if possible.","Check for gas leaks: if you smell gas, open windows, leave, and do not use switches.","Do not use open flames until gas leaks are confirmed absent.","Inspect your home for structural damage — cracks in walls, foundation, or chimney.","Do not enter damaged buildings. Wait for structural assessment.","Listen to emergency broadcasts for instructions and updates.","Clean up hazardous spills (chemicals, medicines, bleach) carefully wearing gloves.","Use text messages instead of calls to keep phone lines free for emergencies.","Document all damage with photos for insurance and government relief assessment."] },
+    { id:"landslide", icon:"⛰️", name:"Landslide",  color:"#d4a054",
+      before:["Know if your home is on or near a slope, hillside, or unstable ground.","Watch for warning signs: cracks in soil or pavement, leaning trees/fences, bulging ground.","Plant deep-rooted vegetation on slopes to help stabilize soil.","Ensure proper drainage around your home — water is the main trigger of landslides.","Do not build on steep slopes, near drainage channels, or natural erosion valleys.","Contact your barangay about local landslide hazard maps.","Prepare an evacuation plan with at least two escape routes away from slopes.","Keep emergency supplies ready — especially during prolonged or heavy rainfall.","Pay attention to PHIVOLCS and PAGASA warnings about rainfall-induced landslides.","Note sounds of cracking trees, moving rocks, or unusual rumbling near slopes."],
+      during:["If indoors, move to the upper floor and stay away from the side facing the slope.","If outdoors, run to the nearest high ground away from the slide path.","If escape is impossible, curl into a tight ball and protect your head.","Never try to outrun a landslide by running parallel to the slope — move perpendicular.","Avoid river valleys and low-lying areas during and after heavy rainfall.","If caught in debris, use your arms to create an air pocket around your face.","Do not cross a road or bridge with active debris flow.","Listen for the rumbling sound that may indicate an approaching landslide.","Stay away from the slide area — secondary slides are common.","Alert neighbors immediately if you observe landslide activity."],
+      after:["Stay away from the slide area — the risk of additional slides remains high.","Watch for flooding which often follows landslides, especially in valleys.","Check for injured or trapped people only if it is safe to do so.","Do not enter damaged buildings — landslides can cause structural weakening.","Report the landslide to your barangay and NDRRMC immediately.","Look for and report any broken utility lines (gas, water, electricity).","Take photos and document the damage for official records.","Do not attempt to clear major debris alone — wait for DPWH or NDRRMC teams.","Watch for changes in your local landscape that may indicate continued instability.","Attend community debriefings organized by your barangay or LGU."] }
+  ];
+
+  const RESOURCE_MODULES = [
+    { id:"energy", icon:"⚡", name:"Renewable Energy", color:"#f4d03f",
+      sections:[
+        { title:"Solar Setup Basics", items:["A basic home solar system consists of: solar panels, a charge controller, a battery bank, and an inverter.","For Antequera and San Isidro's climate, 3–4 peak sun hours per day is a reasonable estimate for solar generation.","A 100W panel can produce roughly 300–400Wh per day — enough to charge phones, run LED lights, and a small fan.","Monocrystalline panels are more efficient than polycrystalline — better for limited roof space.","Face panels slightly south-facing at a tilt equal to your latitude (~10°) for optimal output in the Philippines.","Keep panels clean and free of shade — even partial shade can reduce output by 50%.","A 12V 100Ah battery stores about 1.2kWh — size your battery bank to cover 2 days of cloudy weather.","Install a fuse or circuit breaker between every component for safety.","For a typical household emergency setup: 2x 200W panels + 2x 100Ah batteries + 1000W inverter.","Get your system inspected by a licensed electrician before connecting to your home's wiring."] },
+        { title:"Energy Conservation Tips", items:["Switch all lighting to LED — they use 75% less energy than incandescent bulbs.","Unplug devices when not in use — standby power ('vampire loads') can account for 10% of your bill.","Use natural ventilation (cross-ventilation) instead of electric fans during cooler hours.","Air dry clothes instead of using a dryer — clothes dryers are one of the highest energy consumers.","Run major appliances (washing machines, rice cookers) during off-peak hours (early morning).","Keep refrigerator coils clean and ensure door seals are tight.","Use pressure cookers — they cook food in 1/3 the time, saving gas and electricity.","Install reflective roofing or ceiling insulation to reduce heat and lower cooling needs.","Set water heaters to 48°C — hotter settings waste energy with no added benefit.","Conduct a home energy audit — identify which appliances consume the most and replace old ones."] }
+      ]
+    },
+    { id:"water", icon:"💧", name:"Water Purification", color:"#5ba4c8",
+      sections:[
+        { title:"Water Purification Methods", items:["BOILING: Bring water to a rolling boil for 1 full minute (3 minutes at elevations above 2,000m). Most effective against bacteria, viruses, and parasites.","CHLORINATION: Add 2 drops of unscented household bleach (5.25%) per liter of clear water. Wait 30 minutes before drinking.","SOLAR DISINFECTION (SODIS): Fill clear PET bottles with water, place in direct sunlight for 6 hours (or 2 days if cloudy). Effective against most pathogens.","FILTRATION: Use a ceramic filter, biosand filter, or commercial filter to remove sediment and some pathogens. Always combine with disinfection.","Water purification tablets (sodium dichloroisocyanurate) are available at pharmacies — follow dosage on the packaging.","For turbid water: filter through clean cloth first, then disinfect. Particles protect pathogens from disinfection.","Reverse osmosis (RO) filters remove almost all contaminants but require pressure and regular maintenance.","Never mix water purification methods without understanding interactions — some combinations can be harmful."] },
+        { title:"Safe Water Storage", items:["Use only food-grade containers (blue water drums, PET bottles, or stainless steel) for drinking water storage.","Never store water in containers that previously held chemicals, pesticides, or non-food substances.","Clean storage containers with soap and water, rinse with diluted bleach solution, and air dry before filling.","Keep containers tightly covered and stored in a cool, dark place away from direct sunlight.","Label containers with the date filled — replace stored water every 6 months.","Store a minimum of 4 liters per person per day (2L for drinking, 2L for sanitation) for at least 3 days.","Use a ladle or pump to remove water — never put your hands or dirty cups directly into storage.","Elevate containers off the floor to prevent contamination from ground moisture and pests.","Rainwater harvesting: collect from clean roof surfaces into covered tanks — filter and disinfect before drinking.","During disasters, prioritize water for drinking and oral hygiene over all other uses."] }
+      ]
+    },
+    { id:"waste", icon:"♻️", name:"Waste Management", color:"#5db88a",
+      sections:[
+        { title:"Waste Segregation", items:["Under RA 9003 (Ecological Solid Waste Management Act), waste must be segregated at source into: Biodegradable, Non-biodegradable, and Special/Hazardous waste.","BIODEGRADABLE (Green bin): food scraps, fruit and vegetable peels, leaves, paper, garden waste.","NON-BIODEGRADABLE (Yellow/Black bin): plastics, styrofoam, metals, glass, rubber.","RECYCLABLES (Blue bin): clean plastic bottles, cardboard, aluminum cans, glass bottles, newspapers.","SPECIAL/HAZARDOUS: batteries, medicines, chemicals, light bulbs, electronic waste — never mix with regular waste.","Label your bins clearly and place them in accessible areas for household members.","Rinse food containers before placing in recycling — dirty recyclables contaminate entire batches.","Reduce single-use plastics: bring reusable bags, containers, and water bottles.","Participate in your barangay's scheduled collection days — know the schedule and follow it.","Educate children early on segregation — habits formed young tend to last a lifetime."] }
+      ]
+    },
+    { id:"preparedness", icon:"🛡️", name:"Disaster Preparedness", color:"#7c82d4",
+      sections:[
+        { title:"Building Your Go Bag", items:["A Go Bag is a pre-packed bag you can grab in under 2 minutes during an emergency evacuation.","WATER: At least 1 liter per person. Include water purification tablets as backup.","FOOD: 3-day supply of non-perishable, ready-to-eat food (canned goods, energy bars, dried fruit).","DOCUMENTS: Photocopies of IDs, birth certificates, land titles, insurance, and medical records in a waterproof envelope.","FIRST AID: Bandages, antiseptic, pain relievers, prescription medicines (7-day supply), and a first aid manual.","TOOLS: Flashlight + extra batteries, hand-crank or battery radio, whistle, multi-tool knife, duct tape.","CLOTHING: One change of clothes per person, rain poncho, sturdy closed-toe shoes.","COMMUNICATION: List of emergency contacts written on paper (not just stored in phone), local maps.","MONEY: Small bills in a waterproof pouch — ATMs and card readers may be down.","PERSONAL ITEMS: Glasses/contacts, baby needs, pet food if applicable, sanitary supplies."] },
+        { title:"Family Emergency Plan", items:["Hold a family meeting to discuss disasters most likely in your area (typhoon, flood, earthquake).","Designate two meeting points: one near your home, one outside your neighborhood.","Assign roles: who grabs the Go Bag, who helps the elderly/children, who turns off utilities.","Establish an out-of-area contact person that all family members can call or text to check in.","Practice your evacuation route at least twice a year — include nighttime drills.","Know the location of your nearest evacuation center and alternate options.","Plan for pets — identify pet-friendly shelters or arrange with neighbors in advance.","Ensure all family members know how to send an SMS if voice calls fail (texts use less network bandwidth).","Create a communication tree for extended family and neighbors.","Review and update the plan annually or after any significant life change (new baby, elderly parent moved in)."] }
+      ]
+    }
+  ];
+
+  function renderItems(items, color) {
+    return `<ol class="gp-guide-list">
+      ${items.map((item, i) => `
+        <li class="gp-guide-item">
+          <span class="gp-guide-num" style="background:${color}22;color:${color};border:1px solid ${color}44">${String(i+1).padStart(2,'0')}</span>
+          <span class="gp-guide-text">${item}</span>
+        </li>`).join('')}
+    </ol>`;
+  }
+
+  // ── BUILD DISASTER TAB ──
+  const disasterTab = document.getElementById('gp-tab-disaster');
+  disasterTab.innerHTML = `
+    <div class="gp-disaster-pills" style="margin-top:16px;">
+      ${DISASTER_GUIDES.map((g,i) => `
+        <button class="gp-disaster-pill ${i===0?'active':''}" data-disaster="${g.id}" style="--pill-color:${g.color}">
+          <span>${g.icon}</span><span>${g.name}</span>
+        </button>`).join('')}
+    </div>
+    ${DISASTER_GUIDES.map((g,gi) => `
+      <div class="gp-disaster-content ${gi===0?'active':''}" id="gd-${g.id}">
+        <div class="gp-disaster-header" style="--guide-color:${g.color}">
+          <span class="gp-disaster-big-icon">${g.icon}</span>
+          <div>
+            <div class="gp-disaster-name">${g.name} Guide</div>
+            <div class="gp-disaster-count">${g.before.length+g.during.length+g.after.length} tips across 3 phases</div>
+          </div>
+        </div>
+        <div class="gp-phase-tabs">
+          <button class="gp-phase-tab active" data-guide="${g.id}" data-phase="before" style="--phase-color:${g.color}">
+            ⏰ Before <span class="gp-phase-count">${g.before.length}</span>
+          </button>
+          <button class="gp-phase-tab" data-guide="${g.id}" data-phase="during" style="--phase-color:${g.color}">
+            ⚡ During <span class="gp-phase-count">${g.during.length}</span>
+          </button>
+          <button class="gp-phase-tab" data-guide="${g.id}" data-phase="after" style="--phase-color:${g.color}">
+            ✓ After <span class="gp-phase-count">${g.after.length}</span>
+          </button>
+        </div>
+        <div class="gp-phase-panel active" id="gpp-${g.id}-before">${renderItems(g.before, g.color)}</div>
+        <div class="gp-phase-panel" id="gpp-${g.id}-during">${renderItems(g.during, g.color)}</div>
+        <div class="gp-phase-panel" id="gpp-${g.id}-after">${renderItems(g.after, g.color)}</div>
+      </div>`).join('')}
+  `;
+
+  // ── BUILD RESOURCE TAB ──
+  const resourceTab = document.getElementById('gp-tab-resources');
+  resourceTab.innerHTML = `
+    <div class="gp-disaster-pills" style="margin-top:16px;">
+      ${RESOURCE_MODULES.map((m,i) => `
+        <button class="gp-disaster-pill ${i===0?'active':''}" data-resource="${m.id}" style="--pill-color:${m.color}">
+          <span>${m.icon}</span><span>${m.name}</span>
+        </button>`).join('')}
+    </div>
+    ${RESOURCE_MODULES.map((m,mi) => `
+      <div class="gp-resource-content ${mi===0?'active':''}" id="gr-${m.id}">
+        <div class="gp-disaster-header" style="--guide-color:${m.color}">
+          <span class="gp-disaster-big-icon">${m.icon}</span>
+          <div>
+            <div class="gp-disaster-name">${m.name}</div>
+            <div class="gp-disaster-count">${m.sections.length} section${m.sections.length>1?'s':''}</div>
+          </div>
+        </div>
+        <div class="gp-accordion">
+          ${m.sections.map((sec,si) => `
+            <div class="gp-acc-item" id="gacc-${m.id}-${si}">
+              <button class="gp-acc-toggle" data-acc="${m.id}-${si}" style="--acc-color:${m.color}">
+                <span class="gp-acc-title">${sec.title}</span>
+                <svg class="gp-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              <div class="gp-acc-body">
+                <ol class="gp-resource-list">
+                  ${sec.items.map((item,ii) => `
+                    <li class="gp-resource-item">
+                      <span class="gp-resource-num" style="color:${m.color}">${String(ii+1).padStart(2,'0')}</span>
+                      <span class="gp-resource-text">${item}</span>
+                    </li>`).join('')}
+                </ol>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`).join('')}
+  `;
+
+  // ── WIRE TOP TABS ──
+  document.querySelectorAll('.gp-top-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.gp-top-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.gp-tab-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(`gp-tab-${tab.dataset.topTab}`).classList.add('active');
+    });
+  });
+
+  // ── WIRE DISASTER PILLS ──
+  document.addEventListener('click', e => {
+    const pill = e.target.closest('[data-disaster]');
+    if (pill) {
+      document.querySelectorAll('[data-disaster]').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.gp-disaster-content').forEach(c => c.classList.remove('active'));
+      pill.classList.add('active');
+      document.getElementById(`gd-${pill.dataset.disaster}`).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    const rpill = e.target.closest('[data-resource]');
+    if (rpill) {
+      document.querySelectorAll('[data-resource]').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.gp-resource-content').forEach(c => c.classList.remove('active'));
+      rpill.classList.add('active');
+      document.getElementById(`gr-${rpill.dataset.resource}`).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    const phaseTab = e.target.closest('[data-guide][data-phase]');
+    if (phaseTab) {
+      const content = document.getElementById(`gd-${phaseTab.dataset.guide}`);
+      content.querySelectorAll('.gp-phase-tab').forEach(t => t.classList.remove('active'));
+      content.querySelectorAll('.gp-phase-panel').forEach(p => p.classList.remove('active'));
+      phaseTab.classList.add('active');
+      document.getElementById(`gpp-${phaseTab.dataset.guide}-${phaseTab.dataset.phase}`).classList.add('active');
+    }
+
+    const accBtn = e.target.closest('.gp-acc-toggle');
+    if (accBtn) {
+      const item   = accBtn.closest('.gp-acc-item');
+      const isOpen = item.classList.contains('open');
+      item.closest('.gp-accordion').querySelectorAll('.gp-acc-item').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    }
+  });
+
+  // ── OFFLINE BADGE ──
+  if (!navigator.onLine) {
+    document.getElementById('offlineBadge').classList.add('show');
+  }
+  window.addEventListener('offline', () => document.getElementById('offlineBadge').classList.add('show'));
+  window.addEventListener('online',  () => document.getElementById('offlineBadge').classList.remove('show'));
+</script>
+</body>
+</html>
