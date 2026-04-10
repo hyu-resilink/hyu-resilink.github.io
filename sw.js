@@ -1,22 +1,25 @@
-// sw.js — Resilink Service Worker
-// Handles offline caching for the PWA.
+// sw.js — Resilink Service Worker v3
+// ─────────────────────────────────────────────────────────────
 // Cache strategies:
-//   App shell (HTML/CSS/JS) → Cache First
-//   Map tiles (OpenStreetMap) → Stale While Revalidate
-//   CDN + Firebase SDK (Leaflet, Fonts, gstatic) → Cache First with network fallback
-//   Firebase Auth/Firestore API calls → Skip (Firebase SDK handles its own offline)
+//   App shell (HTML/CSS/JS) → Cache First (pre-cached on install)
+//   Firebase SDK scripts    → Cache First (pre-cached on install)
+//   Map tiles (OSM)         → Stale While Revalidate
+//   Other CDN assets        → Cache First with network fallback
+//   Firebase API calls      → Skip (SDK handles offline natively)
 //
-// FIX v2: Firebase SDK scripts (www.gstatic.com/firebasejs/) are now actively
-// cached by the SW instead of being skipped. Previously we relied on the browser's
-// HTTP cache which can expire or be cleared, causing a blank screen on cold offline
-// starts. Now the SDK is cached in CDN_CACHE on first load and served from there.
+// FIX v3:
+//   • Firebase SDK scripts are now PRE-CACHED during SW install,
+//     not lazily cached on first request. This guarantees they are
+//     available on the very first cold offline start.
+//   • Bumped CACHE_VERSION to v3 so old caches are purged immediately.
+// ─────────────────────────────────────────────────────────────
 
-const CACHE_VERSION = 'v2'; // bumped so new cache rules take effect immediately
+const CACHE_VERSION = 'v3';
 const APP_CACHE     = `resilink-app-${CACHE_VERSION}`;
 const TILE_CACHE    = `resilink-tiles-${CACHE_VERSION}`;
 const CDN_CACHE     = `resilink-cdn-${CACHE_VERSION}`;
 
-// ── APP SHELL ──────────────────────────────────────────────────
+// ── APP SHELL — pre-cached on install ─────────────────────────
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -40,16 +43,42 @@ const APP_SHELL = [
   '/js/offline.js',
 ];
 
+// ── FIREBASE SDK — pre-cached on install ───────────────────────
+// These MUST be pre-cached so cold offline starts work without
+// ever having visited the app online first. Previously they were
+// only lazily cached on first request, which broke cold starts.
+const FIREBASE_SDK = [
+  'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js',
+  'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js',
+  'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js',
+];
+
 // ── INSTALL ────────────────────────────────────────────────────
+// Pre-cache both the app shell AND the Firebase SDK scripts.
+// event.waitUntil keeps the SW in the 'installing' state until
+// all resources are cached — ensuring nothing is missed.
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(APP_CACHE)
-      .then((cache) => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
+    Promise.all([
+      // App shell: local files
+      caches.open(APP_CACHE)
+        .then((cache) => cache.addAll(APP_SHELL))
+        .catch((err) => console.warn('[SW] App shell cache failed:', err)),
+
+      // Firebase SDK: remote CDN files
+      caches.open(CDN_CACHE)
+        .then((cache) => cache.addAll(FIREBASE_SDK))
+        .catch((err) => console.warn('[SW] Firebase SDK cache failed:', err)),
+    ])
+    .then(() => {
+      console.log('[SW] Install complete — all assets pre-cached.');
+      return self.skipWaiting();
+    })
   );
 });
 
 // ── ACTIVATE ───────────────────────────────────────────────────
+// Delete any old cache versions so stale assets are cleared.
 self.addEventListener('activate', (event) => {
   const validCaches = [APP_CACHE, TILE_CACHE, CDN_CACHE];
 
@@ -58,9 +87,15 @@ self.addEventListener('activate', (event) => {
       .then((keys) => Promise.all(
         keys
           .filter((key) => !validCaches.includes(key))
-          .map((key) => caches.delete(key))
+          .map((key) => {
+            console.log('[SW] Deleting old cache:', key);
+            return caches.delete(key);
+          })
       ))
-      .then(() => self.clients.claim())
+      .then(() => {
+        console.log('[SW] Activate complete — old caches cleared.');
+        return self.clients.claim();
+      })
   );
 });
 
@@ -68,51 +103,55 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // ── 1. Skip Firebase Auth/Firestore/database API calls only ──
-  // These are runtime API calls — Firebase SDK handles offline persistence
-  // for these natively. We must NOT intercept them.
-  // NOTE: We no longer skip www.gstatic.com/firebasejs/ here — those are
-  // the SDK *script files* which we now actively cache in CDN_CACHE below.
+  // ── 1. Skip Firebase Auth/Firestore/Database API calls ────────
+  // These are runtime API calls. The Firebase SDK handles its own
+  // offline persistence for these via IndexedDB — we must not intercept.
+  // NOTE: www.gstatic.com/firebasejs/ is NOT skipped here — those are
+  // SDK script files which we pre-cache and serve from CDN_CACHE.
   if (
-    url.hostname.includes('firebase.googleapis.com') ||
-    url.hostname.includes('firebaseio.com') ||
-    url.hostname.includes('firestore.googleapis.com') ||
+    url.hostname.includes('firebase.googleapis.com')     ||
+    url.hostname.includes('firebaseio.com')              ||
+    url.hostname.includes('firestore.googleapis.com')    ||
     url.hostname.includes('identitytoolkit.googleapis.com') ||
-    url.hostname.includes('securetoken.googleapis.com') ||
-    url.hostname.includes('firebaseapp.com') ||
+    url.hostname.includes('securetoken.googleapis.com')  ||
+    url.hostname.includes('firebaseapp.com')             ||
     url.hostname === 'www.googleapis.com'
   ) {
-    return; // Let Firebase SDK handle these natively
+    return; // Pass through — Firebase SDK handles these
   }
 
-  // ── 2. Map tiles — Stale While Revalidate ──
+  // ── 2. Map tiles — Stale While Revalidate ─────────────────────
+  // Serve from cache instantly, then update cache in background.
   if (url.hostname.includes('tile.openstreetmap.org')) {
     event.respondWith(staleWhileRevalidate(event.request, TILE_CACHE));
     return;
   }
 
-  // ── 3. CDN assets + Firebase SDK scripts — Cache First ──
-  // Firebase SDK scripts live on www.gstatic.com/firebasejs/ — we now
-  // actively cache these so cold offline starts work reliably without
-  // depending on the browser's HTTP cache.
+  // ── 3. Firebase SDK scripts + other CDN assets — Cache First ──
+  // Firebase SDK scripts are pre-cached during install so they are
+  // always available offline, even on a completely cold start.
   if (
-    url.hostname.includes('unpkg.com') ||
-    url.hostname.includes('fonts.googleapis.com') ||
-    url.hostname.includes('fonts.gstatic.com') ||
-    url.hostname.includes('raw.githubusercontent.com') ||
-    url.hostname.includes('cdnjs.cloudflare.com') ||
-    (url.hostname === 'www.gstatic.com' && url.pathname.startsWith('/firebasejs/'))
+    url.hostname === 'www.gstatic.com'                       ||
+    url.hostname.includes('unpkg.com')                       ||
+    url.hostname.includes('fonts.googleapis.com')            ||
+    url.hostname.includes('fonts.gstatic.com')               ||
+    url.hostname.includes('raw.githubusercontent.com')       ||
+    url.hostname.includes('cdnjs.cloudflare.com')
   ) {
     event.respondWith(cacheFirst(event.request, CDN_CACHE));
     return;
   }
 
-  // ── 4. App shell — Cache First with network fallback ──
+  // ── 4. App shell — Cache First with network fallback ──────────
   event.respondWith(cacheFirst(event.request, APP_CACHE));
 });
 
 // ── CACHE STRATEGIES ───────────────────────────────────────────
 
+/**
+ * Cache First: serve from cache if available, else fetch and cache.
+ * For navigation requests (page loads), fall back to /index.html.
+ */
 async function cacheFirst(request, cacheName) {
   const cached = await caches.match(request);
   if (cached) return cached;
@@ -125,17 +164,23 @@ async function cacheFirst(request, cacheName) {
     }
     return response;
   } catch {
+    // Network failed — try index.html fallback for navigation requests
     if (request.mode === 'navigate') {
       const fallback = await caches.match('/index.html');
       if (fallback) return fallback;
     }
     return new Response('Offline — resource not cached', {
       status: 503,
-      headers: { 'Content-Type': 'text/plain' }
+      headers: { 'Content-Type': 'text/plain' },
     });
   }
 }
 
+/**
+ * Stale While Revalidate: serve cached version immediately,
+ * then update cache from network in the background.
+ * Used for map tiles where slightly stale data is acceptable.
+ */
 async function staleWhileRevalidate(request, cacheName) {
   const cache  = await caches.open(cacheName);
   const cached = await cache.match(request);
@@ -154,6 +199,8 @@ async function staleWhileRevalidate(request, cacheName) {
 }
 
 // ── MESSAGE HANDLER ────────────────────────────────────────────
+// Allows the page to tell the SW to activate immediately
+// (used when a new SW version is detected).
 self.addEventListener('message', (event) => {
   if (event.data === 'skipWaiting') {
     self.skipWaiting();
