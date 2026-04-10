@@ -1,6 +1,6 @@
 // js/heritage.js
 import { db } from "./firebase.js";
-import { compressImage, escapeHtml, sanitizeInput, logError } from "./utils.js";
+import { compressImage } from "./utils.js";
 import { heritageLayer } from "./map.js";
 import { currentUserRole } from "./incidents.js";
 
@@ -121,7 +121,7 @@ function buildHoverPopup(data) {
 
   return `
     <div class="heritage-popup">
-      <div class="heritage-title">${escapeHtml(data.name)}</div>
+      <div class="heritage-title">${data.name}</div>
       ${imgHTML}
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;">
         <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--mono);background:${sCfg.bg};color:${sCfg.color};border:1px solid ${sCfg.border}">
@@ -202,12 +202,15 @@ function openHeritagePanel(siteId, data) {
     editSection.style.display = isLgu ? "block" : "none";
 
     if (isLgu) {
+      // Pre-select current status buttons
       document.querySelectorAll(".hs-status-btn").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.status === status);
       });
+      // Pre-select current risk buttons
       document.querySelectorAll(".hs-risk-btn").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.risk === risk);
       });
+      // Pre-fill damage notes input
       const notesInput = document.getElementById("hsDamageNotesInput");
       if (notesInput) notesInput.value = data.damage_notes || "";
     }
@@ -265,7 +268,7 @@ function loadHeritageReports(siteId) {
       card.className = "hr-card";
       card.innerHTML = `
         ${r.imageBase64 ? `<img src="${r.imageBase64}" class="hr-card-img" loading="lazy">` : ""}
-        <p class="hr-card-obs">${escapeHtml(r.observation)}</p>
+        <p class="hr-card-obs">${r.observation}</p>
         <span class="hr-card-date">🕐 ${date}</span>
       `;
       container.appendChild(card);
@@ -298,7 +301,7 @@ if (saveHeritageBtn) {
 
     const activeStatus = document.querySelector(".hs-status-btn.active")?.dataset.status;
     const activeRisk   = document.querySelector(".hs-risk-btn.active")?.dataset.risk;
-    const notes        = sanitizeInput(document.getElementById("hsDamageNotesInput")?.value, 500);
+    const notes        = document.getElementById("hsDamageNotesInput")?.value.trim() || "";
 
     if (!activeStatus || !activeRisk) {
       alert("Please select both a status and a risk level.");
@@ -316,6 +319,7 @@ if (saveHeritageBtn) {
         updatedAt:    serverTimestamp()
       });
 
+      // Update badge colors live in the panel header
       const sCfg = STATUS_CONFIG[activeStatus];
       const rCfg = RISK_CONFIG[activeRisk];
 
@@ -331,6 +335,7 @@ if (saveHeritageBtn) {
       riskBadge.style.color      = rCfg.color;
       riskBadge.style.border     = `1px solid ${rCfg.border}`;
 
+      // Update damage notes display
       const notesEl = document.getElementById("heritageDamageNotes");
       if (notesEl) {
         notesEl.textContent   = notes;
@@ -344,7 +349,7 @@ if (saveHeritageBtn) {
       }, 2000);
 
     } catch (err) {
-      logError("saveHeritageStatus", err);
+      console.error("saveHeritageStatus:", err);
       alert("Failed to save. Please try again.");
       saveHeritageBtn.disabled    = false;
       saveHeritageBtn.textContent = "Save Status";
@@ -369,8 +374,7 @@ if (heritageImageInput) {
 const submitHeritageBtn = document.getElementById("submitHeritageReport");
 if (submitHeritageBtn) {
   submitHeritageBtn.addEventListener("click", async () => {
-    // ── FIX: sanitize observation before saving ──
-    const observation = sanitizeInput(document.getElementById("heritageObservation").value, 500);
+    const observation = document.getElementById("heritageObservation").value.trim();
     if (!observation) { alert("Please write an observation before submitting."); return; }
     if (!currentSiteId) return;
 
@@ -399,7 +403,7 @@ if (submitHeritageBtn) {
       setTimeout(resetSubmitBtn, 2000);
 
     } catch (err) {
-      logError("heritageReportSubmit", err);
+      console.error("Heritage report submit:", err);
       alert("Failed to submit. Please try again.");
       resetSubmitBtn();
     }

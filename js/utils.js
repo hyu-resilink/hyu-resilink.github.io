@@ -18,7 +18,7 @@ export async function compressImage(file, maxWidth = 800, quality = 0.7) {
       img.onload = () => {
         const canvas = document.createElement("canvas");
 
-        // Only scale down, never up
+        // BUG FIX: only scale down, never up
         if (img.width > maxWidth) {
           const scale   = maxWidth / img.width;
           canvas.width  = maxWidth;
@@ -43,37 +43,10 @@ export async function compressImage(file, maxWidth = 800, quality = 0.7) {
 // Prevents XSS when inserting user content into innerHTML.
 export function escapeHtml(str) {
   if (!str) return "";
-  return String(str)
+  return str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
-}
-
-// ── PRODUCTION LOGGER ──────────────────────────────────────────
-// Centralized logging so we can track errors in production.
-const LOG_LEVELS = { info: "ℹ️", warn: "⚠️", error: "❌" };
-
-export function logError(context, error) {
-  const msg = error?.message || String(error);
-  console.error(`${LOG_LEVELS.error} [${context}]`, msg, error);
-}
-
-export function logWarn(context, message) {
-  console.warn(`${LOG_LEVELS.warn} [${context}]`, message);
-}
-
-export function logInfo(context, message) {
-  console.log(`${LOG_LEVELS.info} [${context}]`, message);
-}
-
-// ── INPUT SANITIZER ────────────────────────────────────────────
-// Strips dangerous content from user text input before saving to Firestore.
-export function sanitizeInput(str, maxLength = 500) {
-  if (!str) return "";
-  return String(str)
-    .trim()
-    .slice(0, maxLength)
-    .replace(/[<>]/g, ""); // strip < > to prevent HTML injection
 }

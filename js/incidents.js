@@ -1,6 +1,6 @@
 // js/incidents.js
 import { db } from "./firebase.js";
-import { compressImage, escapeHtml, sanitizeInput, logError } from "./utils.js";
+import { compressImage } from "./utils.js";
 import {
   map,
   blueIcon,
@@ -109,7 +109,7 @@ export function loadIncidents() {
         ? '<span class="badge badge-lgu">LGU</span>'
         : '<span class="badge badge-community">Community</span>';
       const categoryBadge = data.category
-        ? `<span class="badge badge-category">${CATEGORY_ICONS[data.category] || "📋"} ${escapeHtml(data.category)}</span>`
+        ? `<span class="badge badge-category">${CATEGORY_ICONS[data.category] || "📋"} ${data.category}</span>`
         : "";
       const dateStr = data.createdAt?.toDate
         ? data.createdAt.toDate().toLocaleString("en-PH", { month:"short", day:"numeric", year:"numeric", hour:"2-digit", minute:"2-digit" })
@@ -125,9 +125,9 @@ export function loadIncidents() {
         actionButtons += `
           <div style="display:flex;gap:6px;margin-top:4px;">
             <button class="popup-edit-btn" data-action="edit" data-id="${id}"
-              data-title="${escapeHtml(data.title || "")}"
-              data-desc="${escapeHtml(data.description || "")}"
-              data-cat="${escapeHtml(data.category || "")}">
+              data-title="${(data.title||"").replace(/"/g,"&quot;")}"
+              data-desc="${(data.description||"").replace(/"/g,"&quot;")}"
+              data-cat="${data.category||""}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -155,13 +155,12 @@ export function loadIncidents() {
           </div>`;
       }
 
-      // ── FIX: escapeHtml on title and description to prevent XSS ──
       const popupContent = `
         <div class="incident-popup ${data.flagged && !data.verified ? "popup-flagged" : ""} ${data.verified ? "popup-verified" : ""}">
           ${buildVerificationBanner(data)}
-          <div class="incident-title">${escapeHtml(data.title)}</div>
+          <div class="incident-title">${data.title}</div>
           ${imageHTML}
-          <div class="incident-description">${escapeHtml(data.description)}</div>
+          <div class="incident-description">${data.description}</div>
           <div style="margin-bottom:6px;">${categoryBadge}</div>
           <div>${sourceBadge} ${statusBadge}</div>
           ${timestampHTML}
@@ -208,7 +207,7 @@ async function resolveIncident(id) {
   try {
     await updateDoc(doc(db, "incidents", id), { status: "resolved" });
   } catch (err) {
-    logError("resolveIncident", err);
+    console.error("resolveIncident:", err);
     alert("Failed to resolve. Please try again.");
   }
 }
@@ -224,7 +223,7 @@ async function deleteIncident(id, btnEl) {
     await setDoc(doc(db, "archived_incidents", id), { ...snap.data(), archivedAt: new Date() });
     await deleteDoc(ref);
   } catch (err) {
-    logError("deleteIncident", err);
+    console.error("deleteIncident:", err);
     alert("Failed to delete. Please try again.");
     if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Delete"; }
   }
@@ -237,7 +236,7 @@ async function setVerification(id, isVerified) {
       verified: isVerified,
       ...(isVerified ? { flagged: false, flagCount: 0 } : {})
     });
-  } catch (err) { logError("setVerification", err); alert("Failed. Please try again."); }
+  } catch (err) { console.error("setVerification:", err); alert("Failed. Please try again."); }
 }
 
 // ── FLAG ───────────────────────────────────────────────────────
@@ -254,7 +253,7 @@ async function setFlag(id, isFlagged, isLgu) {
       const newCount = (snap.data().flagCount || 0) + 1;
       await updateDoc(ref, { flagCount: newCount, flagged: newCount >= 3 });
     }
-  } catch (err) { logError("setFlag", err); alert("Failed to flag. Please try again."); }
+  } catch (err) { console.error("setFlag:", err); alert("Failed to flag. Please try again."); }
 }
 
 // ── EDIT ───────────────────────────────────────────────────────
@@ -283,12 +282,9 @@ async function saveEditForm(id, saveBtn) {
   const titleInput = document.getElementById(`edit-title-${id}`);
   const descInput  = document.getElementById(`edit-desc-${id}`);
   const catSelect  = document.getElementById(`edit-cat-${id}`);
-
-  // ── FIX: sanitize inputs before saving ──
-  const newTitle = sanitizeInput(titleInput?.value, 120);
-  const newDesc  = sanitizeInput(descInput?.value,  500);
-  const newCat   = catSelect?.value;
-
+  const newTitle   = titleInput?.value.trim();
+  const newDesc    = descInput?.value.trim();
+  const newCat     = catSelect?.value;
   if (!newTitle || !newDesc) { alert("Title and description cannot be empty."); return; }
   const origText = saveBtn?.textContent;
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "Saving…"; }
@@ -297,7 +293,7 @@ async function saveEditForm(id, saveBtn) {
     if (saveBtn) { saveBtn.textContent = "✓ Saved!"; setTimeout(() => { saveBtn.disabled = false; saveBtn.textContent = origText; }, 1500); }
     closeEditForm(id);
   } catch (err) {
-    logError("saveEditForm", err);
+    console.error("saveEditForm:", err);
     alert("Failed to save. Please try again.");
     if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = origText; }
   }
@@ -348,12 +344,9 @@ if (submitBtn) {
   submitBtn.addEventListener("click", async () => {
     const { lat, lng } = getSelectedLocation();
     if (lat === null || lng === null) { alert("Please click the map or use GPS to set a location."); return; }
-    const category = document.getElementById("reportCategory").value;
-
-    // ── FIX: sanitize inputs before saving ──
-    const title       = sanitizeInput(document.getElementById("title").value,       120);
-    const description = sanitizeInput(document.getElementById("description").value, 500);
-
+    const category    = document.getElementById("reportCategory").value;
+    const title       = document.getElementById("title").value.trim();
+    const description = document.getElementById("description").value.trim();
     if (!category)              { alert("Please select a report type."); return; }
     if (!title || !description) { alert("Please fill in the title and description."); return; }
     submitBtn.disabled = true; submitBtn.textContent = "Submitting…";
@@ -375,7 +368,7 @@ if (submitBtn) {
       const accEl = document.getElementById("gpsAccuracy");
       if (accEl) { accEl.style.display = "none"; accEl.textContent = ""; accEl.classList.remove("gps-error"); }
       clearTempMarker(); clearAccuracyCircle();
-    } catch (err) { logError("submitIncident", err); alert("Failed to submit. Please try again."); }
+    } catch (err) { console.error("submitIncident:", err); alert("Failed to submit. Please try again."); }
     finally { submitBtn.disabled = false; submitBtn.textContent = "Submit"; }
   });
 }

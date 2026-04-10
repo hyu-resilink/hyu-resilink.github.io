@@ -7,7 +7,7 @@ import {
 import { updateProfile }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { map } from "./map.js";
-import { compressImage, escapeHtml } from "./utils.js";
+import { compressImage } from "./utils.js";
 
 // ── CACHE ──────────────────────────────────────
 let allReportsCache = [];
@@ -731,8 +731,8 @@ async function loadDashboard() {
       row.className = "dash-recent-row";
       row.innerHTML = `
         <span style="width:9px;height:9px;border-radius:50%;background:${dot};flex-shrink:0"></span>
-        <span style="flex:1;color:#c5d5e8;">${escapeHtml(d.category || "Report")}</span>
-        <span style="font-size:11px;">${escapeHtml(d.title || "")}${flagIcon}${verifiedIcon}</span>
+        <span style="flex:1;color:#c5d5e8;">${d.category || "Report"}</span>
+        <span style="font-size:11px;">${d.title || ""}${flagIcon}${verifiedIcon}</span>
         <span style="font-size:11px;color:#5c7490;">${date}</span>
       `;
       list.appendChild(row);
@@ -789,7 +789,7 @@ function fmtDate(ts) {
 
 function roleBadge(role) {
   const cls = role==="sysadmin" ? "role-sysadmin" : role==="lgu" ? "role-lgu" : "role-community";
-  return `<span class="admin-role-badge ${cls}">${escapeHtml(role||"community")}</span>`;
+  return `<span class="admin-role-badge ${cls}">${role||"community"}</span>`;
 }
 
 function renderAdminUsers(filter="") {
@@ -804,8 +804,8 @@ function renderAdminUsers(filter="") {
 
   tbody.innerHTML = list.map(u=>`
     <tr>
-      <td class="admin-td-name">${escapeHtml(u.username||"—")}</td>
-      <td class="admin-td-mono">${escapeHtml(u.email||"—")}</td>
+      <td class="admin-td-name">${u.username||"—"}</td>
+      <td class="admin-td-mono">${u.email||"—"}</td>
       <td>${roleBadge(u.role)}</td>
       <td class="admin-td-mono">${fmtDate(u.createdAt)}</td>
       <td>
@@ -847,9 +847,9 @@ function renderAdminArchive() {
   if (!allAdminArchive.length) { grid.innerHTML=`<div class="admin-tbl-empty">No archived reports yet.</div>`; return; }
   grid.innerHTML = allAdminArchive.map(r=>`
     <div class="archive-card">
-      <div><span class="archive-card-cat">${escapeHtml(r.category||"Report")}</span></div>
-      <div class="archive-card-title">${escapeHtml(r.title||"Untitled")}</div>
-      <div class="archive-card-desc">${escapeHtml(r.description||"No description.")}</div>
+      <div><span class="archive-card-cat">${r.category||"Report"}</span></div>
+      <div class="archive-card-title">${r.title||"Untitled"}</div>
+      <div class="archive-card-desc">${r.description||"No description."}</div>
       <div class="archive-card-meta">
         <span>${r.source==="lgu"?"🔵 LGU":"🟠 Community"}</span>
         <span>🗄 ${fmtDate(r.archivedAt)}</span>
@@ -929,13 +929,12 @@ function buildReportCard(id, data, isHeritage = false) {
     ? `<span style="font-size:10px;color:#f4845f;margin-left:6px;">🚩 Flagged${data.flagCount > 1 ? " (" + data.flagCount + ")" : ""}</span>`
     : "";
 
-  // ── FIX: escapeHtml on description to prevent XSS in report cards ──
   card.innerHTML = `
     <div class="report-card-header">
-      <span class="report-category-tag">${escapeHtml(data.category || (isHeritage ? "Heritage Report" : "Report"))}</span>
+      <span class="report-category-tag">${data.category || (isHeritage ? "Heritage Report" : "Report")}</span>
       <span class="report-status-badge ${isResolved ? "resolved" : "active"}">${isResolved ? "Resolved" : "Active"}</span>
     </div>
-    <p class="report-desc">${escapeHtml(data.description || data.observation || "No description provided.")}</p>
+    <p class="report-desc">${data.description || data.observation || "No description provided."}</p>
     <div class="report-meta">
       <span>🕐 ${date}</span>
       ${(data.latitude || data.lat) ? `<span>📍 ${(data.latitude ?? data.lat).toFixed(4)}, ${(data.longitude ?? data.lng).toFixed(4)}</span>` : ""}
