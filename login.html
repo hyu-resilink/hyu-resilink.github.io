@@ -170,7 +170,7 @@
       color: #475569; text-align: center;
     }
 
-    .link-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center}
+    .link-modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center}
     .link-modal-overlay.show{display:flex}
     .link-modal{background:rgba(15,23,42,0.97);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:32px;width:360px;box-shadow:0 24px 60px rgba(0,0,0,0.6);color:white}
     .link-modal-icon{font-size:28px;margin-bottom:10px}
@@ -183,10 +183,54 @@
     .link-confirm-btn{flex:1;padding:10px;border-radius:9px;border:none;cursor:pointer;background:linear-gradient(135deg,#38bdf8,#6366f1);color:white;font-weight:600;font-size:13px}
     .link-cancel-btn{padding:10px 16px;border-radius:9px;cursor:pointer;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:#94a3b8;font-size:13px}
 
-    .spinner-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:#cbd5e1;font-size:14px}
-    .spinner-overlay.show{display:flex}
-    .spinner{width:36px;height:36px;border:3px solid rgba(56,189,248,0.2);border-top-color:#38bdf8;border-radius:50%;animation:spin 0.8s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
+    /* ── SPINNER OVERLAY ──
+       FIX: Use explicit top/left/right/bottom instead of inset:0
+       inset is not supported on older Android WebViews (pre-Chrome 87),
+       which caused the spinner to appear off-center or mispositioned in PWA mode.
+       Also ensures it covers the full screen including status bar area.
+    */
+    .spinner-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;  /* FIX: explicit instead of inset:0 */
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+    .spinner-overlay.show { display: flex; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(56,189,248,0.2);
+      border-top-color: #38bdf8;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* FIX: Cancel button shown inside spinner when Google popup is open
+       so user can manually dismiss if popup doesn't close cleanly on PWA */
+    .spinner-cancel-btn {
+      display: none;
+      margin-top: 4px;
+      padding: 8px 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.07);
+      color: #94a3b8;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: 'Segoe UI', sans-serif;
+      transition: background 0.2s;
+    }
+    .spinner-cancel-btn:hover { background: rgba(255,255,255,0.13); }
+    .spinner-cancel-btn.show { display: block; }
 
     #recaptcha-container{margin-top:8px}
 
@@ -204,9 +248,11 @@
 <div class="glow"></div>
 <div class="glow"></div>
 
+<!-- FIX: Added cancel button inside spinner for Google popup stuck state -->
 <div class="spinner-overlay" id="spinnerOverlay">
   <div class="spinner"></div>
   <span id="spinnerMsg">Signing you in…</span>
+  <button class="spinner-cancel-btn" id="spinnerCancelBtn">Cancel</button>
 </div>
 
 <div class="link-modal-overlay" id="linkModalOverlay">
@@ -362,11 +408,29 @@
   let resendInterval     = null;
   let recaptchaVerifier  = null;
 
-  function showSpinner(msg="Signing you in…"){
-    document.getElementById("spinnerMsg").textContent=msg;
+  // ── SPINNER ───────────────────────────────────
+  function showSpinner(msg = "Signing you in…", showCancel = false) {
+    document.getElementById("spinnerMsg").textContent = msg;
     document.getElementById("spinnerOverlay").classList.add("show");
+    // FIX: Show cancel button when Google popup is open so user can
+    // manually escape if the popup dismisses without firing an error
+    const cancelBtn = document.getElementById("spinnerCancelBtn");
+    if (showCancel) {
+      cancelBtn.classList.add("show");
+    } else {
+      cancelBtn.classList.remove("show");
+    }
   }
-  function hideSpinner(){ document.getElementById("spinnerOverlay").classList.remove("show"); }
+  function hideSpinner() {
+    document.getElementById("spinnerOverlay").classList.remove("show");
+    document.getElementById("spinnerCancelBtn").classList.remove("show");
+  }
+
+  // FIX: Cancel button manually clears the spinner when Google popup is stuck
+  document.getElementById("spinnerCancelBtn").addEventListener("click", () => {
+    _googleSignInPending = false;
+    hideSpinner();
+  });
 
   function showError(id,msg){
     const e=document.getElementById(id);
@@ -452,8 +516,8 @@
       btn.disabled    = false;
       btn.textContent = "Send Reset Link";
       const map = {
-        "auth/user-not-found":  "No account found with this email address.",
-        "auth/invalid-email":   "Invalid email format.",
+        "auth/user-not-found":    "No account found with this email address.",
+        "auth/invalid-email":     "Invalid email format.",
         "auth/too-many-requests": "Too many attempts. Please wait a moment.",
       };
       errEl.textContent  = map[err.code] || "Failed to send reset email. Please try again.";
@@ -467,20 +531,61 @@
 
   // ── GOOGLE SIGN IN ────────────────────────────
   let pendingGoogleCredential = null;
+  let _googleSignInPending    = false;
+
+  // FIX: visibilitychange handles the case where the user dismisses the
+  // Google popup by pressing back or tapping outside on Android.
+  // On PWA standalone mode, the page may not go hidden at all, so we also
+  // have a manual Cancel button (spinnerCancelBtn) as a fallback.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && _googleSignInPending) {
+      // Give Firebase 1.5s to reject naturally before force-clearing
+      setTimeout(() => {
+        if (_googleSignInPending) {
+          _googleSignInPending = false;
+          hideSpinner();
+        }
+      }, 1500);
+    }
+  });
+
+  // FIX: Safety timeout — if Google popup hasn't resolved after 30s,
+  // force-clear the spinner. Catches edge cases where neither
+  // visibilitychange nor the error handler fires (e.g. some Android PWA modes).
+  let _googleTimeoutId = null;
+
   document.getElementById("googleBtn").addEventListener("click", async () => {
     clearErrors();
+    _googleSignInPending = true;
+    // Show spinner with cancel button visible
+    showSpinner("Opening Google…", true);
+
+    // FIX: Safety timeout in case popup gets completely stuck
+    _googleTimeoutId = setTimeout(() => {
+      if (_googleSignInPending) {
+        _googleSignInPending = false;
+        hideSpinner();
+      }
+    }, 30000);
+
     try {
-      showSpinner("Opening Google…");
       const result = await signInWithPopup(auth, provider);
+      _googleSignInPending = false;
+      clearTimeout(_googleTimeoutId);
       await redirectAfterLogin(result.user);
     } catch (err) {
+      _googleSignInPending = false;
+      clearTimeout(_googleTimeoutId);
       hideSpinner();
       if (err.code === "auth/account-exists-with-different-credential") {
         pendingGoogleCredential = GoogleAuthProvider.credentialFromError(err);
         document.getElementById("linkModalEmail").textContent = err.customData?.email || "";
         document.getElementById("linkModalOverlay").classList.add("show");
-      } else if (err.code !== "auth/popup-closed-by-user") {
-        showError("emailError","Google sign-in failed.");
+      } else if (
+        err.code !== "auth/popup-closed-by-user" &&
+        err.code !== "auth/cancelled-popup-request"
+      ) {
+        showError("emailError", "Google sign-in failed. Please try again.");
       }
     }
   });
@@ -536,7 +641,7 @@
       hideSpinner();
       console.error("sendOTP:", err);
       showError("phoneError",
-        err.code === "auth/too-many-requests" ? "Too many attempts. Please wait." :
+        err.code === "auth/too-many-requests"   ? "Too many attempts. Please wait." :
         err.code === "auth/invalid-phone-number" ? "Invalid phone number." :
         "Failed to send code. Please try again.");
       recaptchaVerifier = null; initRecaptcha();
