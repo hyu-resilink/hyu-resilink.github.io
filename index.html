@@ -1337,6 +1337,20 @@
 </script>
 <!-- ══ END SERVICE WORKER ════════════════════ -->
 
+<!-- ══ OFFLINE MODULE LOAD GUARD ════════════ -->
+<script>
+  // On Android Chrome, ES modules can silently fail to load from SW
+  // cache on cold start. If the page loaded but main.js didn't init
+  // within 5 seconds, do one silent reload to fix it.
+  window.__appInitialized = false;
+  setTimeout(() => {
+    if (!window.__appInitialized && !navigator.onLine === false) {
+      console.warn('[guard] JS modules failed to load — reloading.');
+      location.reload();
+    }
+  }, 5000);
+</script>
 <script type="module" src="js/main.js"></script>
+
 </body>
 </html>

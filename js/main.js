@@ -16,7 +16,7 @@ import { initGuides }            from "./guides.js";
 
 async function init() {
   await window.__swReady;
-
+  window.__appInitialized = true;
   // ... all your existing Firebase / auth code ...
 
   loadHeritageSites();
