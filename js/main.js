@@ -14,7 +14,15 @@ import { loadEvacuationCenters } from "./evacuation.js";
 import { initSidebar }           from "./sidebar.js";
 import { initGuides }            from "./guides.js";
 
-loadHeritageSites();
-loadEvacuationCenters();
-initSidebar();
-initGuides();
+async function init() {
+  await window.__swReady;
+
+  // ... all your existing Firebase / auth code ...
+
+  loadHeritageSites();
+  loadEvacuationCenters();
+  initSidebar();      // ← inside
+  initGuides();       // ← inside
+}               // ← closing brace goes HERE, after initGuides()
+
+init();         // ← add this at the very bottom

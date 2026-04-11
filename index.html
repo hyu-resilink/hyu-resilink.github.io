@@ -1269,27 +1269,71 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <!-- ══ SERVICE WORKER REGISTRATION ══════════ -->
+<!--
+  FIX v4: SW is registered immediately (not gated on 'load') and we
+  wait for it to claim this page before main.js touches Firebase.
+
+  window.__swReady is a Promise exposed to main.js. At the top of
+  your init function in main.js, add ONE line:
+
+      await window.__swReady;   ← add this as the very first line
+      // then your existing Firebase / auth code continues normally
+
+  Without this gate, the very first cold offline start fails because
+  main.js attempts Firebase calls before the SW fetch handler is in
+  control of the page.
+-->
 <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then((reg) => {
-          console.log('[SW] Registered, scope:', reg.scope);
-          reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  console.log('[SW] New version available — activating.');
-                  newWorker.postMessage('skipWaiting');
-                }
-              });
-            }
-          });
-        })
-        .catch((err) => console.warn('[SW] Registration failed:', err));
-    });
-  }
+  window.__swReady = (async () => {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      console.log('[SW] Registered, scope:', reg.scope);
+
+      // Listen for future SW updates so new versions activate cleanly
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('[SW] New version available — activating.');
+            newWorker.postMessage('skipWaiting');
+          }
+        });
+      });
+
+      // Already controlled — common case on every visit after first install.
+      // Resolves immediately so there is zero added delay for returning users.
+      if (navigator.serviceWorker.controller) {
+        console.log('[SW] Already controlling page ✓');
+        return;
+      }
+
+      // First install only: wait for the SW to call clients.claim().
+      // This ensures the fetch handler is active before main.js runs
+      // Firebase / auth — fixing the cold offline start race condition.
+      await Promise.race([
+        new Promise((resolve) => {
+          navigator.serviceWorker.addEventListener(
+            'controllerchange',
+            () => { console.log('[SW] Claimed page ✓'); resolve(); },
+            { once: true }
+          );
+          // Kick any already-waiting worker (e.g. a queued SW update)
+          if (reg.waiting) reg.waiting.postMessage('skipWaiting');
+        }),
+        // 4 s safety net — app never hangs if claim never fires
+        new Promise((resolve) =>
+          setTimeout(() => {
+            console.warn('[SW] Claim timeout — proceeding anyway.');
+            resolve();
+          }, 4000)
+        ),
+      ]);
+    } catch (err) {
+      console.warn('[SW] Registration failed:', err);
+    }
+  })();
 </script>
 <!-- ══ END SERVICE WORKER ════════════════════ -->
 

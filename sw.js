@@ -1,25 +1,30 @@
-// sw.js — Resilink Service Worker v3
+// sw.js — Resilink Service Worker v4
 // ─────────────────────────────────────────────────────────────
 // Cache strategies:
-//   App shell (HTML/CSS/JS) → Cache First (pre-cached on install)
-//   Firebase SDK scripts    → Cache First (pre-cached on install)
+//   App shell (HTML/CSS/JS) → Cache First (pre-cached on install, CRITICAL)
+//   Firebase SDK scripts    → Cache First (best-effort pre-cache on install)
 //   Map tiles (OSM)         → Stale While Revalidate
 //   Other CDN assets        → Cache First with network fallback
 //   Firebase API calls      → Skip (SDK handles offline natively)
 //
-// FIX v3:
-//   • Firebase SDK scripts are now PRE-CACHED during SW install,
-//     not lazily cached on first request. This guarantees they are
-//     available on the very first cold offline start.
-//   • Bumped CACHE_VERSION to v3 so old caches are purged immediately.
+// FIX v4:
+//   • App shell cache failure now throws (critical — must succeed).
+//   • Firebase SDK cache failure is caught separately and non-fatal
+//     (user may be offline at install time; SDK will be cached on first
+//     online use instead).
+//   • skipWaiting() is always called even if SDK pre-cache fails,
+//     so the SW activates and claims the page as fast as possible.
+//   • Bumped CACHE_VERSION to v4 so old caches are purged immediately.
 // ─────────────────────────────────────────────────────────────
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const APP_CACHE     = `resilink-app-${CACHE_VERSION}`;
 const TILE_CACHE    = `resilink-tiles-${CACHE_VERSION}`;
 const CDN_CACHE     = `resilink-cdn-${CACHE_VERSION}`;
 
-// ── APP SHELL — pre-cached on install ─────────────────────────
+// ── APP SHELL — pre-cached on install (CRITICAL) ───────────────
+// These MUST be cached for the app to function offline at all.
+// If any of these fail, the install fails and the SW won't activate.
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -43,10 +48,13 @@ const APP_SHELL = [
   '/js/offline.js',
 ];
 
-// ── FIREBASE SDK — pre-cached on install ───────────────────────
-// These MUST be pre-cached so cold offline starts work without
-// ever having visited the app online first. Previously they were
-// only lazily cached on first request, which broke cold starts.
+// ── FIREBASE SDK — best-effort pre-cache on install ────────────
+// These are cached during install when the user is online.
+// If the user installs the PWA while already offline, this list
+// will fail to fetch — that's acceptable. The SDK scripts will be
+// cached the next time the user opens the app online (via the
+// cache-first fetch handler below). The app must not fail to
+// install just because gstatic.com was unreachable.
 const FIREBASE_SDK = [
   'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js',
   'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js',
@@ -54,26 +62,38 @@ const FIREBASE_SDK = [
 ];
 
 // ── INSTALL ────────────────────────────────────────────────────
-// Pre-cache both the app shell AND the Firebase SDK scripts.
-// event.waitUntil keeps the SW in the 'installing' state until
-// all resources are cached — ensuring nothing is missed.
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    Promise.all([
-      // App shell: local files
-      caches.open(APP_CACHE)
-        .then((cache) => cache.addAll(APP_SHELL))
-        .catch((err) => console.warn('[SW] App shell cache failed:', err)),
+    (async () => {
+      // ── Step 1: App shell — CRITICAL, must succeed ─────────────
+      // These are all local files served from the same origin.
+      // If any fail (e.g. a typo in a filename), we want the SW
+      // install to fail loudly so the bug is caught immediately.
+      const appCache = await caches.open(APP_CACHE);
+      await appCache.addAll(APP_SHELL);
+      console.log('[SW] App shell pre-cached ✓');
 
-      // Firebase SDK: remote CDN files
-      caches.open(CDN_CACHE)
-        .then((cache) => cache.addAll(FIREBASE_SDK))
-        .catch((err) => console.warn('[SW] Firebase SDK cache failed:', err)),
-    ])
-    .then(() => {
-      console.log('[SW] Install complete — all assets pre-cached.');
-      return self.skipWaiting();
-    })
+      // ── Step 2: Firebase SDK — BEST EFFORT, non-fatal ──────────
+      // Wrapped in its own try/catch so a network failure here does
+      // NOT abort the SW install. The SDK will be lazily cached on
+      // first online request via the cacheFirst() fetch handler.
+      try {
+        const cdnCache = await caches.open(CDN_CACHE);
+        await cdnCache.addAll(FIREBASE_SDK);
+        console.log('[SW] Firebase SDK pre-cached ✓');
+      } catch (err) {
+        console.warn(
+          '[SW] Firebase SDK pre-cache skipped — likely offline at install time.',
+          'SDK will be cached on first online visit.',
+          err
+        );
+      }
+
+      // Always skip waiting so the new SW activates immediately
+      // and can call clients.claim() to control the current page.
+      console.log('[SW] Install complete — activating immediately.');
+      self.skipWaiting();
+    })()
   );
 });
 
@@ -94,6 +114,8 @@ self.addEventListener('activate', (event) => {
       ))
       .then(() => {
         console.log('[SW] Activate complete — old caches cleared.');
+        // Claim all open clients immediately so the page that triggered
+        // this SW install/update is controlled without a reload.
         return self.clients.claim();
       })
   );
@@ -107,14 +129,14 @@ self.addEventListener('fetch', (event) => {
   // These are runtime API calls. The Firebase SDK handles its own
   // offline persistence for these via IndexedDB — we must not intercept.
   // NOTE: www.gstatic.com/firebasejs/ is NOT skipped here — those are
-  // SDK script files which we pre-cache and serve from CDN_CACHE.
+  // SDK script files which we cache and serve from CDN_CACHE.
   if (
-    url.hostname.includes('firebase.googleapis.com')     ||
-    url.hostname.includes('firebaseio.com')              ||
-    url.hostname.includes('firestore.googleapis.com')    ||
+    url.hostname.includes('firebase.googleapis.com')        ||
+    url.hostname.includes('firebaseio.com')                 ||
+    url.hostname.includes('firestore.googleapis.com')       ||
     url.hostname.includes('identitytoolkit.googleapis.com') ||
-    url.hostname.includes('securetoken.googleapis.com')  ||
-    url.hostname.includes('firebaseapp.com')             ||
+    url.hostname.includes('securetoken.googleapis.com')     ||
+    url.hostname.includes('firebaseapp.com')                ||
     url.hostname === 'www.googleapis.com'
   ) {
     return; // Pass through — Firebase SDK handles these
@@ -128,14 +150,15 @@ self.addEventListener('fetch', (event) => {
   }
 
   // ── 3. Firebase SDK scripts + other CDN assets — Cache First ──
-  // Firebase SDK scripts are pre-cached during install so they are
-  // always available offline, even on a completely cold start.
+  // Firebase SDK scripts may have been pre-cached during install.
+  // If not (offline install), they are lazily cached here on first
+  // online request and served from cache on subsequent offline visits.
   if (
-    url.hostname === 'www.gstatic.com'                       ||
-    url.hostname.includes('unpkg.com')                       ||
-    url.hostname.includes('fonts.googleapis.com')            ||
-    url.hostname.includes('fonts.gstatic.com')               ||
-    url.hostname.includes('raw.githubusercontent.com')       ||
+    url.hostname === 'www.gstatic.com'                 ||
+    url.hostname.includes('unpkg.com')                 ||
+    url.hostname.includes('fonts.googleapis.com')      ||
+    url.hostname.includes('fonts.gstatic.com')         ||
+    url.hostname.includes('raw.githubusercontent.com') ||
     url.hostname.includes('cdnjs.cloudflare.com')
   ) {
     event.respondWith(cacheFirst(event.request, CDN_CACHE));
