@@ -26,3 +26,18 @@ async function init() {
 }               // ← closing brace goes HERE, after initGuides()
 
 init();         // ← add this at the very bottom
+
+async function requestPermission() {
+  const permission = await Notification.requestPermission();
+
+  if (permission === "granted") {
+    const token = await getToken(messaging, {
+      vapidKey: "YOUR_PUBLIC_VAPID_KEY"
+    });
+
+    console.log("User Token:", token);
+
+    // Save this token to your database (important!)
+  }
+}
+requestPermission();
