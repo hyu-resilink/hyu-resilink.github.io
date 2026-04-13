@@ -5,11 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- ══ PWA / OFFLINE ADDITIONS ══════════════════════════════ -->
-  <!-- Makes "Add to Home Screen" work on Android Chrome -->
   <link rel="manifest" href="manifest.json">
-  <!-- Android Chrome toolbar color -->
   <meta name="theme-color" content="#5ba4c8">
-  <!-- iOS partial PWA support -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Resilink">
@@ -159,6 +156,7 @@
       margin-left: auto; font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
       color: var(--red); background: rgba(224,82,82,0.14); border: 1px solid rgba(224,82,82,0.28); padding: 2px 6px; border-radius: 4px;
     }
+
     /* ── ADMIN PANEL STYLES ── */
     .admin-tabs-inner { display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px;overflow-x:auto; }
     .admin-tab-inner { padding:10px 16px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--slate-dim);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.2s;white-space:nowrap;display:flex;align-items:center;gap:6px;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font); }
@@ -203,6 +201,53 @@
     .admin-confirm-no { flex:1;padding:10px;border-radius:10px;border:none;background:var(--glass);color:var(--slate);font-family:var(--font);cursor:pointer;border:1px solid var(--border); }
     .admin-confirm-yes:hover { opacity:0.9; }
     .admin-confirm-no:hover { background:rgba(255,255,255,0.08); }
+
+    /* ── ADMIN REPUTATION TAB STYLES ── */
+    .rep-cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
+    .rep-card { background:rgba(21,30,46,0.8); border:1px solid rgba(255,255,255,0.09); border-radius:13px; padding:16px 18px; display:flex; flex-direction:column; gap:10px; }
+    .rep-card-header { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+    .rep-card-name  { font-size:13.5px; font-weight:600; color:#c5d5e8; }
+    .rep-card-email { font-size:11px; color:#6a85a8; font-family:var(--mono); margin-top:2px; }
+    .rep-card-row   { display:flex; align-items:center; justify-content:space-between; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:12px; }
+    .rep-card-row:last-of-type { border-bottom:none; }
+    .rep-card-row-label { color:var(--slate-dim); }
+    .rep-card-row-val   { font-weight:600; font-family:var(--mono); font-size:11.5px; }
+    .rep-bar-bg   { width:64px; height:5px; border-radius:3px; background:rgba(255,255,255,0.08); flex-shrink:0; }
+    .rep-bar-fill { height:5px; border-radius:3px; }
+    .rep-score-wrap { display:flex; align-items:center; gap:8px; }
+    .rep-num { font-family:var(--mono); font-size:11.5px; font-weight:700; min-width:44px; }
+    .rep-card-actions { display:flex; gap:6px; margin-top:4px; flex-wrap:wrap; }
+    .rep-sep { font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--slate-dim); margin:20px 0 14px; display:flex; align-items:center; gap:10px; }
+    .rep-sep::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.09); }
+
+    /* ── REPUTATION CARD BUTTONS ── */
+    .tbl-btn-inner { padding:4px 10px; border-radius:7px; cursor:pointer; font-size:11px; font-weight:600; font-family:var(--font); border:1px solid; transition:all 0.18s; flex:1; text-align:center; }
+    .tbl-ban-btn     { background:rgba(224,82,82,0.07); border-color:rgba(224,82,82,0.22); color:#d98080; }
+    .tbl-ban-btn:hover { background:rgba(224,82,82,0.18); }
+    .tbl-restore-btn { background:rgba(93,184,138,0.08); border-color:rgba(93,184,138,0.25); color:#5db88a; }
+    .tbl-restore-btn:hover { background:rgba(93,184,138,0.2); }
+    .tbl-warn-btn    { background:rgba(212,160,84,0.08); border-color:rgba(212,160,84,0.25); color:#d4a054; }
+    .tbl-warn-btn:hover { background:rgba(212,160,84,0.2); }
+    .tbl-del-btn     { background:rgba(224,82,82,0.07); border-color:rgba(224,82,82,0.22); color:#d98080; }
+    .tbl-del-btn:hover { background:rgba(224,82,82,0.18); }
+
+    /* ── USER TABLE ACTION BUTTONS ── */
+    .admin-ban-btn     { padding:4px 10px; border-radius:7px; cursor:pointer; font-size:11px; font-weight:600; font-family:var(--font); background:rgba(224,82,82,0.07); border:1px solid rgba(224,82,82,0.22); color:#d98080; transition:all 0.18s; margin-left:4px; }
+    .admin-ban-btn:hover { background:rgba(224,82,82,0.18); }
+    .admin-restore-btn { padding:4px 10px; border-radius:7px; cursor:pointer; font-size:11px; font-weight:600; font-family:var(--font); background:rgba(93,184,138,0.08); border:1px solid rgba(93,184,138,0.25); color:#5db88a; transition:all 0.18s; margin-left:4px; }
+    .admin-restore-btn:hover { background:rgba(93,184,138,0.2); }
+
+    /* ── RISK & TRUST BADGES ── */
+    .risk-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:10px; font-weight:700; font-family:var(--mono); }
+    .risk-low  { background:rgba(93,184,138,0.12); color:#5db88a; border:1px solid rgba(93,184,138,0.25); }
+    .risk-mid  { background:rgba(212,160,84,0.12);  color:#d4a054; border:1px solid rgba(212,160,84,0.25); }
+    .risk-high { background:rgba(244,132,95,0.15);  color:#f4845f; border:1px solid rgba(244,132,95,0.3); }
+    .risk-ban  { background:rgba(224,82,82,0.15);   color:#e05252; border:1px solid rgba(224,82,82,0.3); }
+    .trust-pill    { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:10px; font-weight:700; font-family:var(--mono); }
+    .trust-trusted { background:rgba(93,184,138,0.12); color:#5db88a; border:1px solid rgba(93,184,138,0.25); }
+    .trust-new     { background:rgba(91,164,200,0.1);  color:#5ba4c8; border:1px solid rgba(91,164,200,0.2); }
+    .trust-low-rel { background:rgba(244,132,95,0.12); color:#f4845f; border:1px solid rgba(244,132,95,0.25); }
+    .trust-banned  { background:rgba(224,82,82,0.15);  color:#e05252; border:1px solid rgba(224,82,82,0.3); }
 
     .sidebar-footer { padding: 14px 14px 18px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
     .user-name { font-size: 12px; font-weight: 600; color: #c5d5e8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; display: block; }
@@ -1029,6 +1074,14 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
           User Management
         </button>
+        <button class="admin-tab-inner" data-admintab="reputation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Reputation &amp; Abuse
+        </button>
+        <button class="admin-tab-inner" data-admintab="reports">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Reports Overview
+        </button>
         <button class="admin-tab-inner" data-admintab="archive">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/></svg>
           Archived Reports
@@ -1039,38 +1092,84 @@
         </button>
       </div>
 
+      <!-- TAB: USER MANAGEMENT -->
       <div class="admin-tab-panel active" id="adminTabUsers">
         <input type="text" class="admin-search-bar" id="adminUserSearch" placeholder="Search by name, email, or role…">
         <div class="admin-table-wrap">
           <table class="admin-table">
             <thead><tr>
-              <th>User</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th>
+              <th>User</th><th>Email</th><th>Phone</th><th>Role</th>
+              <th>LGU Sees</th><th>Rep Score</th><th>Reports</th><th>Fake %</th>
+              <th>Joined</th><th>Actions</th>
             </tr></thead>
             <tbody id="adminUsersBody">
-              <tr><td colspan="5" class="admin-tbl-loading">Loading users…</td></tr>
+              <tr><td colspan="10" class="admin-tbl-loading">Loading users…</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
+      <!-- TAB: REPUTATION & ABUSE -->
+      <div class="admin-tab-panel" id="adminTabReputation">
+        <div style="padding:12px 16px;border-radius:10px;margin-bottom:20px;background:rgba(124,130,212,0.08);border:1px solid rgba(124,130,212,0.22);color:#a0a4e0;font-size:12.5px;line-height:1.7;">
+          <strong style="color:#c0c4f0">Admin-only view.</strong>
+          LGU accounts see only simplified trust labels (Trusted / New / Low Reliability).
+          All ban and warning decisions are made here.
+        </div>
+        <div class="stats-grid" style="margin-bottom:20px;">
+          <div class="stat-card"><div class="stat-icon" style="font-size:18px">✅</div><div class="stat-value" id="repTrusted">—</div><div class="stat-label">Trusted Users</div></div>
+          <div class="stat-card"><div class="stat-icon" style="font-size:18px">🔵</div><div class="stat-value" id="repNew">—</div><div class="stat-label">New / Unrated</div></div>
+          <div class="stat-card"><div class="stat-icon" style="font-size:18px">⚠️</div><div class="stat-value" id="repLowRel">—</div><div class="stat-label">Low Reliability</div></div>
+          <div class="stat-card"><div class="stat-icon" style="font-size:18px">🚫</div><div class="stat-value" id="repBanned">—</div><div class="stat-label">Shadow Banned</div></div>
+          <div class="stat-card"><div class="stat-icon" style="font-size:18px">🚩</div><div class="stat-value" id="repHighRisk">—</div><div class="stat-label">High Risk</div></div>
+        </div>
+        <div class="rep-sep">⚠️ High Risk &amp; Banned</div>
+        <div class="rep-cards-grid" id="adminHighRiskGrid">
+          <div class="admin-tbl-loading">Loading…</div>
+        </div>
+        <div class="rep-sep" style="margin-top:22px;">All Users</div>
+        <div class="rep-cards-grid" id="adminAllRepGrid">
+          <div class="admin-tbl-loading">Loading…</div>
+        </div>
+      </div>
+
+      <!-- TAB: REPORTS OVERVIEW -->
+      <div class="admin-tab-panel" id="adminTabReports">
+        <input type="text" class="admin-search-bar" id="adminReportSearch" placeholder="Search by title, category, or status…">
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr>
+              <th>Title</th><th>Category</th><th>Source</th><th>Status</th>
+              <th>Flagged</th><th>Confidence</th><th>Date</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="adminReportsBody">
+              <tr><td colspan="8" class="admin-tbl-loading">Loading reports…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: ARCHIVED REPORTS -->
       <div class="admin-tab-panel" id="adminTabArchive">
         <div class="archive-cards-grid" id="adminArchiveGrid">
           <div class="admin-tbl-loading">Loading archived reports…</div>
         </div>
       </div>
 
+      <!-- TAB: SYSTEM OVERVIEW -->
       <div class="admin-tab-panel" id="adminTabOverview">
         <div class="stats-grid" id="adminOverviewStats">
           <div class="stat-card"><div class="stat-icon" style="color:#5ba4c8;background:rgba(91,164,200,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-value" id="ovTotalUsers">—</div><div class="stat-label">Total Users</div></div>
           <div class="stat-card"><div class="stat-icon" style="color:#7c82d4;background:rgba(124,130,212,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="stat-value" id="ovLguUsers">—</div><div class="stat-label">LGU Accounts</div></div>
           <div class="stat-card"><div class="stat-icon" style="color:#f4845f;background:rgba(244,132,95,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="stat-value" id="ovActiveReports">—</div><div class="stat-label">Active Reports</div></div>
           <div class="stat-card"><div class="stat-icon" style="color:#888ea0;background:rgba(136,142,160,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-value" id="ovResolvedReports">—</div><div class="stat-label">Resolved Reports</div></div>
+          <div class="stat-card"><div class="stat-icon" style="color:#f4845f;background:rgba(244,132,95,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div><div class="stat-value" id="ovFlagged">—</div><div class="stat-label">Flagged Reports</div></div>
+          <div class="stat-card"><div class="stat-icon" style="color:#e05252;background:rgba(224,82,82,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg></div><div class="stat-value" id="ovShadowBanned">—</div><div class="stat-label">Shadow Banned</div></div>
           <div class="stat-card"><div class="stat-icon" style="color:#d4a054;background:rgba(212,160,84,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/></svg></div><div class="stat-value" id="ovArchived">—</div><div class="stat-label">Archived Reports</div></div>
           <div class="stat-card"><div class="stat-icon" style="color:#5db88a;background:rgba(93,184,138,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg></div><div class="stat-value" id="ovHeritage">—</div><div class="stat-label">Heritage Sites</div></div>
           <div class="stat-card"><div class="stat-icon" style="color:#e05252;background:rgba(224,82,82,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><div class="stat-value" id="ovEvac">—</div><div class="stat-label">Evacuation Centers</div></div>
         </div>
       </div>
-
     </div>
   </section>
 
@@ -1269,20 +1368,6 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <!-- ══ SERVICE WORKER REGISTRATION ══════════ -->
-<!--
-  FIX v4: SW is registered immediately (not gated on 'load') and we
-  wait for it to claim this page before main.js touches Firebase.
-
-  window.__swReady is a Promise exposed to main.js. At the top of
-  your init function in main.js, add ONE line:
-
-      await window.__swReady;   ← add this as the very first line
-      // then your existing Firebase / auth code continues normally
-
-  Without this gate, the very first cold offline start fails because
-  main.js attempts Firebase calls before the SW fetch handler is in
-  control of the page.
--->
 <script>
   window.__swReady = (async () => {
     if (!('serviceWorker' in navigator)) return;
@@ -1290,7 +1375,6 @@
       const reg = await navigator.serviceWorker.register('/sw.js');
       console.log('[SW] Registered, scope:', reg.scope);
 
-      // Listen for future SW updates so new versions activate cleanly
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
         if (!newWorker) return;
@@ -1302,16 +1386,11 @@
         });
       });
 
-      // Already controlled — common case on every visit after first install.
-      // Resolves immediately so there is zero added delay for returning users.
       if (navigator.serviceWorker.controller) {
         console.log('[SW] Already controlling page ✓');
         return;
       }
 
-      // First install only: wait for the SW to call clients.claim().
-      // This ensures the fetch handler is active before main.js runs
-      // Firebase / auth — fixing the cold offline start race condition.
       await Promise.race([
         new Promise((resolve) => {
           navigator.serviceWorker.addEventListener(
@@ -1319,10 +1398,8 @@
             () => { console.log('[SW] Claimed page ✓'); resolve(); },
             { once: true }
           );
-          // Kick any already-waiting worker (e.g. a queued SW update)
           if (reg.waiting) reg.waiting.postMessage('skipWaiting');
         }),
-        // 4 s safety net — app never hangs if claim never fires
         new Promise((resolve) =>
           setTimeout(() => {
             console.warn('[SW] Claim timeout — proceeding anyway.');
@@ -1337,11 +1414,7 @@
 </script>
 <!-- ══ END SERVICE WORKER ════════════════════ -->
 
-<!-- ══ OFFLINE MODULE LOAD GUARD ════════════ -->
 <script>
-  // On Android Chrome, ES modules can silently fail to load from SW
-  // cache on cold start. If the page loaded but main.js didn't init
-  // within 5 seconds, do one silent reload to fix it.
   window.__appInitialized = false;
   setTimeout(() => {
     if (!window.__appInitialized && !navigator.onLine === false) {

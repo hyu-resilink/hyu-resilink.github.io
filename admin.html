@@ -94,18 +94,21 @@
       position: fixed; top: 56px; left: 0; right: 0; z-index: 99;
       background: rgba(13,20,33,0.97); border-bottom: 1px solid var(--border);
       display: flex; padding: 0 24px; backdrop-filter: blur(16px);
+      overflow-x: auto;
     }
+    .admin-tabs::-webkit-scrollbar { height: 0; }
     .admin-tab {
       padding: 12px 18px; font-size: 13px; font-weight: 600; cursor: pointer;
       color: var(--slate-dim); border-bottom: 2px solid transparent; margin-bottom: -1px;
       transition: all 0.2s; display: flex; align-items: center; gap: 7px;
+      white-space: nowrap;
       font-family: var(--font); background: none; border-top: none; border-left: none; border-right: none;
     }
     .admin-tab:hover { color: var(--slate); }
     .admin-tab.active { color: var(--red); border-bottom-color: var(--red); }
     .admin-tab svg { width: 14px; height: 14px; }
 
-    .admin-content { padding: 120px 28px 40px; max-width: 1100px; margin: 0 auto; }
+    .admin-content { padding: 128px 28px 40px; max-width: 1100px; margin: 0 auto; }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
@@ -113,10 +116,7 @@
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 22px; flex-wrap: wrap; gap: 12px;
     }
-    .panel-title {
-      font-family: var(--display); font-size: 20px; font-weight: 700;
-      color: #e0ecfa; letter-spacing: -0.02em;
-    }
+    .panel-title { font-family: var(--display); font-size: 20px; font-weight: 700; color: #e0ecfa; letter-spacing: -0.02em; }
     .panel-count { font-size: 12px; color: var(--slate-dim); font-family: var(--mono); margin-top: 2px; }
     .refresh-btn {
       padding: 8px 16px; border-radius: 9px; border: 1px solid var(--border);
@@ -127,16 +127,17 @@
     .refresh-btn:hover { background: rgba(255,255,255,0.08); color: var(--white); }
     .refresh-btn svg { width: 13px; height: 13px; }
 
-    .stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 26px; }
+    /* ── STATS ── */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 26px; }
     .stat-card {
       background: rgba(21,30,46,0.8); border: 1px solid var(--border); border-radius: 13px;
       padding: 18px 16px; display: flex; flex-direction: column; gap: 8px;
     }
-    .stat-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
-    .stat-icon svg { width: 16px; height: 16px; }
+    .stat-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
     .stat-val { font-family: var(--display); font-size: 28px; font-weight: 700; color: #e0ecfa; line-height: 1; }
     .stat-lbl { font-size: 11.5px; color: var(--gray); }
 
+    /* ── TABLE ── */
     .admin-table-wrap {
       background: rgba(21,30,46,0.8); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
     }
@@ -162,6 +163,7 @@
     .td-name { color: var(--white); font-weight: 500; }
     .td-mono { font-family: var(--mono); font-size: 11.5px; }
 
+    /* ── BADGES ── */
     .role-badge {
       display: inline-block; padding: 3px 9px; border-radius: 20px;
       font-size: 10px; font-weight: 700; font-family: var(--mono); letter-spacing: 0.05em;
@@ -170,17 +172,45 @@
     .role-lgu      { background: rgba(124,130,212,0.15); color: var(--indigo); border: 1px solid rgba(124,130,212,0.3); }
     .role-community{ background: rgba(91,164,200,0.12); color: var(--teal); border: 1px solid rgba(91,164,200,0.22); }
 
+    /* ── REPUTATION SCORE (ADMIN) ── */
+    .rep-score-wrap { display: flex; align-items: center; gap: 8px; }
+    .rep-bar-bg { width: 64px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.08); flex-shrink: 0; }
+    .rep-bar-fill { height: 5px; border-radius: 3px; }
+    .rep-num { font-family: var(--mono); font-size: 11.5px; font-weight: 700; min-width: 44px; }
+
+    /* ── TRUST PILL (LGU-simplified label) ── */
+    .trust-pill {
+      display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px;
+      border-radius: 20px; font-size: 10px; font-weight: 700; font-family: var(--mono);
+    }
+    .trust-trusted  { background: rgba(93,184,138,0.12); color: #5db88a; border: 1px solid rgba(93,184,138,0.25); }
+    .trust-new      { background: rgba(91,164,200,0.1);  color: var(--teal);  border: 1px solid rgba(91,164,200,0.2); }
+    .trust-low      { background: rgba(244,132,95,0.12); color: #f4845f; border: 1px solid rgba(244,132,95,0.25); }
+    .trust-banned   { background: rgba(224,82,82,0.15);  color: #e05252;  border: 1px solid rgba(224,82,82,0.3); }
+
+    /* ── RISK BADGE ── */
+    .risk-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; font-family: var(--mono); }
+    .risk-low  { background: rgba(93,184,138,0.12); color: #5db88a; border: 1px solid rgba(93,184,138,0.25); }
+    .risk-mid  { background: rgba(212,160,84,0.12); color: #d4a054; border: 1px solid rgba(212,160,84,0.25); }
+    .risk-high { background: rgba(244,132,95,0.15); color: #f4845f; border: 1px solid rgba(244,132,95,0.3); }
+    .risk-ban  { background: rgba(224,82,82,0.15);  color: #e05252; border: 1px solid rgba(224,82,82,0.3); }
+
+    /* ── ACTION BUTTONS ── */
     .tbl-btn {
       padding: 4px 10px; border-radius: 7px; cursor: pointer;
       font-size: 11px; font-weight: 600; font-family: var(--font);
       border: 1px solid; transition: all 0.18s; margin-right: 4px;
     }
-    .tbl-btn-role  { background: rgba(124,130,212,0.08); border-color: rgba(124,130,212,0.25); color: var(--indigo); }
+    .tbl-btn-role    { background: rgba(124,130,212,0.08); border-color: rgba(124,130,212,0.25); color: var(--indigo); }
     .tbl-btn-role:hover { background: rgba(124,130,212,0.2); }
-    .tbl-btn-del   { background: rgba(224,82,82,0.07); border-color: rgba(224,82,82,0.22); color: #d98080; }
+    .tbl-btn-del     { background: rgba(224,82,82,0.07);   border-color: rgba(224,82,82,0.22);   color: #d98080; }
     .tbl-btn-del:hover { background: rgba(224,82,82,0.18); }
-    .tbl-btn-restore { background: rgba(93,184,138,0.08); border-color: rgba(93,184,138,0.25); color: var(--green); }
+    .tbl-btn-restore { background: rgba(93,184,138,0.08);  border-color: rgba(93,184,138,0.25);  color: var(--green); }
     .tbl-btn-restore:hover { background: rgba(93,184,138,0.2); }
+    .tbl-btn-warn    { background: rgba(212,160,84,0.08);  border-color: rgba(212,160,84,0.25);  color: #d4a054; }
+    .tbl-btn-warn:hover { background: rgba(212,160,84,0.2); }
+    .tbl-btn-ban     { background: rgba(224,82,82,0.07);   border-color: rgba(224,82,82,0.22);   color: #d98080; }
+    .tbl-btn-ban:hover { background: rgba(224,82,82,0.18); }
 
     .role-select {
       padding: 4px 8px; border-radius: 7px; font-family: var(--mono); font-size: 11px;
@@ -189,20 +219,61 @@
     }
     .role-select option { background: #111827; color: var(--white); }
 
-    .tbl-loading { text-align: center; padding: 40px; color: var(--slate-dim); font-size: 13px; }
-    .tbl-empty   { text-align: center; padding: 50px; color: var(--slate-dim); font-size: 13px; }
+    /* ── REPUTATION CARDS ── */
+    .rep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 12px; }
+    .rep-card {
+      background: rgba(21,30,46,0.8); border: 1px solid var(--border); border-radius: 13px;
+      padding: 16px 18px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .rep-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .rep-card-name   { font-size: 13.5px; font-weight: 600; color: #c5d5e8; }
+    .rep-card-email  { font-size: 11px; color: #6a85a8; font-family: var(--mono); margin-top: 2px; }
+    .rep-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px;
+    }
+    .rep-row:last-of-type { border-bottom: none; }
+    .rep-row-label { color: var(--slate-dim); }
+    .rep-row-val   { font-weight: 600; font-family: var(--mono); font-size: 11.5px; }
+    .rep-card-actions { display: flex; gap: 6px; margin-top: 4px; }
+    .rep-card-actions .tbl-btn { flex: 1; margin-right: 0; text-align: center; }
 
+    /* ── SECTION SEPARATOR ── */
+    .sep-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--slate-dim); margin: 22px 0 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sep-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── NOTICE BOX ── */
+    .notice-box {
+      padding: 12px 16px; border-radius: 10px; margin-bottom: 20px;
+      background: rgba(124,130,212,0.08); border: 1px solid rgba(124,130,212,0.22);
+      color: #a0a4e0; font-size: 12.5px; line-height: 1.7;
+    }
+    .notice-box strong { color: #c0c4f0; }
+
+    /* ── ARCHIVE CARDS ── */
     .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
     .archive-card {
       background: rgba(21,30,46,0.8); border: 1px solid var(--border); border-radius: 13px;
       padding: 16px 18px; display: flex; flex-direction: column; gap: 8px;
     }
     .archive-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-    .archive-cat { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; background: rgba(91,164,200,0.12); color: var(--teal); border: 1px solid rgba(91,164,200,0.2); }
+    .archive-cat {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 5px; background: rgba(91,164,200,0.12); color: var(--teal);
+      border: 1px solid rgba(91,164,200,0.2);
+    }
     .archive-title { font-size: 13.5px; font-weight: 600; color: #c5d5e8; }
     .archive-desc  { font-size: 12.5px; color: #6a85a8; line-height: 1.5; }
     .archive-meta  { font-size: 11px; color: var(--slate-dim); display: flex; gap: 12px; flex-wrap: wrap; }
 
+    /* ── CONFIDENCE BADGE (reports) ── */
+    .conf-badge { font-size: 11px; font-weight: 700; font-family: var(--mono); }
+
+    /* ── MODAL ── */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(5px);
       display: flex; justify-content: center; align-items: center; z-index: 500;
@@ -212,19 +283,37 @@
       border: 1px solid var(--border); color: var(--white); text-align: center;
       box-shadow: 0 25px 60px rgba(0,0,0,0.6);
     }
-    .modal-icon { font-size: 30px; margin-bottom: 10px; }
+    .modal-icon  { font-size: 30px; margin-bottom: 10px; }
     .modal-title { font-family: var(--display); font-size: 17px; font-weight: 700; margin-bottom: 8px; }
-    .modal-body { font-size: 13px; color: var(--slate); line-height: 1.6; margin-bottom: 20px; }
+    .modal-body  { font-size: 13px; color: var(--slate); line-height: 1.6; margin-bottom: 20px; }
     .modal-actions { display: flex; gap: 10px; }
-    .modal-confirm { flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 700; font-family: var(--font); background: linear-gradient(135deg, var(--red), var(--orange)); color: white; cursor: pointer; }
-    .modal-cancel  { flex: 1; padding: 10px; border-radius: 10px; border: none; background: var(--glass); color: var(--slate); font-family: var(--font); cursor: pointer; border: 1px solid var(--border); }
+    .modal-confirm {
+      flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 700;
+      font-family: var(--font); background: linear-gradient(135deg, var(--red), var(--orange));
+      color: white; cursor: pointer;
+    }
+    .modal-cancel {
+      flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--glass); color: var(--slate); font-family: var(--font); cursor: pointer;
+    }
     .modal-confirm:hover { opacity: 0.9; }
     .modal-cancel:hover  { background: rgba(255,255,255,0.08); }
 
-    .spinner-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 600; align-items: center; justify-content: center; flex-direction: column; gap: 14px; color: #cbd5e1; font-size: 14px; }
+    /* ── SPINNER ── */
+    .spinner-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px); z-index: 600; align-items: center; justify-content: center;
+      flex-direction: column; gap: 14px; color: #cbd5e1; font-size: 14px;
+    }
     .spinner-overlay.show { display: flex; }
-    .spinner { width: 36px; height: 36px; border: 3px solid rgba(56,189,248,0.2); border-top-color: #38bdf8; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .spinner {
+      width: 36px; height: 36px; border: 3px solid rgba(56,189,248,0.2);
+      border-top-color: #38bdf8; border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    .tbl-loading { text-align: center; padding: 40px; color: var(--slate-dim); font-size: 13px; }
+    .tbl-empty   { text-align: center; padding: 50px; color: var(--slate-dim); font-size: 13px; }
 
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-thumb { background: rgba(91,164,200,0.18); border-radius: 10px; }
@@ -269,27 +358,51 @@
   </div>
 
   <div class="admin-tabs">
+    <!-- Users -->
     <button class="admin-tab active" data-tab="users">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
       User Management
     </button>
+    <!-- Reputation -->
+    <button class="admin-tab" data-tab="reputation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      Reputation &amp; Abuse
+    </button>
+    <!-- Reports -->
     <button class="admin-tab" data-tab="reports">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
       Reports Overview
     </button>
+    <!-- Archive -->
     <button class="admin-tab" data-tab="archive">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/>
+        <line x1="10" y1="12" x2="14" y2="12"/>
+      </svg>
       Archived Reports
     </button>
+    <!-- Overview -->
     <button class="admin-tab" data-tab="overview">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
       System Overview
     </button>
   </div>
 
   <div class="admin-content">
 
-    <!-- ── USERS TAB ── -->
+    <!-- ══ TAB: USERS ══ -->
     <div class="tab-panel active" id="tab-users">
       <div class="panel-header">
         <div>
@@ -297,7 +410,9 @@
           <div class="panel-count" id="userCount">Loading…</div>
         </div>
         <button class="refresh-btn" id="refreshUsersBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
           Refresh
         </button>
       </div>
@@ -312,18 +427,83 @@
               <th>Email</th>
               <th>Phone</th>
               <th>Role</th>
+              <th>LGU Sees</th>
+              <th>Rep Score</th>
+              <th>Reports</th>
+              <th>Fake %</th>
               <th>Joined</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="usersTableBody">
-            <tr><td colspan="6" class="tbl-loading">Loading users…</td></tr>
+            <tr><td colspan="10" class="tbl-loading">Loading users…</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- ── REPORTS TAB ── -->
+    <!-- ══ TAB: REPUTATION & ABUSE ══ -->
+    <div class="tab-panel" id="tab-reputation">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Reputation &amp; Abuse Management</div>
+          <div class="panel-count" id="repCount">Loading…</div>
+        </div>
+        <button class="refresh-btn" id="refreshRepBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+          Refresh
+        </button>
+      </div>
+
+      <div class="notice-box">
+        <strong>Admin-only view.</strong> This data is never exposed to LGU users. LGU accounts see only simplified trust labels
+        (Trusted User / New User / Low Reliability) so their response workflow stays fast and unbiased.
+        All decisions — warnings, shadow bans, and account suspensions — are made here.
+      </div>
+
+      <!-- Risk summary -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-val" id="rep-trusted">—</div>
+          <div class="stat-lbl">Trusted Users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔵</div>
+          <div class="stat-val" id="rep-new">—</div>
+          <div class="stat-lbl">New / Unrated</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-val" id="rep-lowrel">—</div>
+          <div class="stat-lbl">Low Reliability</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🚫</div>
+          <div class="stat-val" id="rep-banned">—</div>
+          <div class="stat-lbl">Shadow Banned</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🚩</div>
+          <div class="stat-val" id="rep-highrisk">—</div>
+          <div class="stat-lbl">High Risk</div>
+        </div>
+      </div>
+
+      <div class="sep-label">⚠️ High Risk &amp; Banned Accounts</div>
+      <div class="rep-grid" id="highRiskGrid">
+        <div class="tbl-loading">Loading…</div>
+      </div>
+
+      <div class="sep-label">All Users</div>
+      <div class="rep-grid" id="allRepGrid">
+        <div class="tbl-loading">Loading…</div>
+      </div>
+    </div>
+
+    <!-- ══ TAB: REPORTS ══ -->
     <div class="tab-panel" id="tab-reports">
       <div class="panel-header">
         <div>
@@ -331,7 +511,9 @@
           <div class="panel-count" id="reportsCount">Loading…</div>
         </div>
         <button class="refresh-btn" id="refreshReportsBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
           Refresh
         </button>
       </div>
@@ -347,18 +529,19 @@
               <th>Source</th>
               <th>Status</th>
               <th>Flagged</th>
+              <th>Confidence</th>
               <th>Date</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="reportsTableBody">
-            <tr><td colspan="7" class="tbl-loading">Loading reports…</td></tr>
+            <tr><td colspan="8" class="tbl-loading">Loading reports…</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- ── ARCHIVE TAB ── -->
+    <!-- ══ TAB: ARCHIVE ══ -->
     <div class="tab-panel" id="tab-archive">
       <div class="panel-header">
         <div>
@@ -366,7 +549,9 @@
           <div class="panel-count" id="archiveCount">Loading…</div>
         </div>
         <button class="refresh-btn" id="refreshArchiveBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
           Refresh
         </button>
       </div>
@@ -375,30 +560,105 @@
       </div>
     </div>
 
-    <!-- ── OVERVIEW TAB ── -->
+    <!-- ══ TAB: SYSTEM OVERVIEW ══ -->
     <div class="tab-panel" id="tab-overview">
       <div class="panel-title" style="margin-bottom:20px;">System Overview</div>
       <div class="stats-row" id="overviewStats">
-        <div class="stat-card"><div class="stat-icon" style="color:#5ba4c8;background:rgba(91,164,200,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-val" id="ov-users">—</div><div class="stat-lbl">Total Users</div></div>
-        <div class="stat-card"><div class="stat-icon" style="color:#7c82d4;background:rgba(124,130,212,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="stat-val" id="ov-lgu">—</div><div class="stat-lbl">LGU Accounts</div></div>
-        <div class="stat-card"><div class="stat-icon" style="color:#f4845f;background:rgba(244,132,95,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="stat-val" id="ov-active">—</div><div class="stat-lbl">Active Reports</div></div>
-        <div class="stat-card"><div class="stat-icon" style="color:#888ea0;background:rgba(136,142,160,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-val" id="ov-resolved">—</div><div class="stat-lbl">Resolved Reports</div></div>
-        <div class="stat-card"><div class="stat-icon" style="color:#f4845f;background:rgba(244,132,95,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="stat-val" id="ov-flagged">—</div><div class="stat-lbl">Flagged Reports</div></div>
-        <div class="stat-card"><div class="stat-icon" style="color:#5db88a;background:rgba(93,184,138,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg></div><div class="stat-val" id="ov-heritage">—</div><div class="stat-lbl">Heritage Sites</div></div>
-        <div class="stat-card"><div class="stat-icon" style="color:#e05252;background:rgba(224,82,82,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><div class="stat-val" id="ov-evac">—</div><div class="stat-lbl">Evacuation Centers</div></div>
-        <div class="stat-card"><div class="stat-icon" style="color:#d4a054;background:rgba(212,160,84,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/></svg></div><div class="stat-val" id="ov-archived">—</div><div class="stat-lbl">Archived Reports</div></div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(91,164,200,.12)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#5ba4c8" stroke-width="2" width="18" height="18">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="stat-val" id="ov-users">—</div>
+          <div class="stat-lbl">Total Users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(124,130,212,.12)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#7c82d4" stroke-width="2" width="18" height="18">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div class="stat-val" id="ov-lgu">—</div>
+          <div class="stat-lbl">LGU Accounts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(244,132,95,.12)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f4845f" stroke-width="2" width="18" height="18">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <div class="stat-val" id="ov-active">—</div>
+          <div class="stat-lbl">Active Reports</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(136,142,160,.12)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888ea0" stroke-width="2" width="18" height="18">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="stat-val" id="ov-resolved">—</div>
+          <div class="stat-lbl">Resolved Reports</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(244,132,95,.12)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f4845f" stroke-width="2" width="18" height="18">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="stat-val" id="ov-flagged">—</div>
+          <div class="stat-lbl">Flagged Reports</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(224,82,82,.12)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#e05252" stroke-width="2" width="18" height="18">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            </svg>
+          </div>
+          <div class="stat-val" id="ov-shadowbanned">—</div>
+          <div class="stat-lbl">Shadow Banned</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(93,184,138,.12)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#5db88a" stroke-width="2" width="18" height="18">
+              <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+            </svg>
+          </div>
+          <div class="stat-val" id="ov-heritage">—</div>
+          <div class="stat-lbl">Heritage Sites</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(212,160,84,.12)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#d4a054" stroke-width="2" width="18" height="18">
+              <polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/>
+            </svg>
+          </div>
+          <div class="stat-val" id="ov-archived">—</div>
+          <div class="stat-lbl">Archived Reports</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(224,82,82,.12)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#e05252" stroke-width="2" width="18" height="18">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            </svg>
+          </div>
+          <div class="stat-val" id="ov-evac">—</div>
+          <div class="stat-lbl">Evacuation Centers</div>
+        </div>
       </div>
     </div>
 
-  </div>
-</div>
+  </div><!-- /admin-content -->
+</div><!-- /adminPanel -->
 
-<!-- Confirm modal -->
+<!-- ══ CONFIRM MODAL ══ -->
 <div class="modal-overlay" id="confirmModal" style="display:none;">
   <div class="modal-box">
-    <div class="modal-icon" id="modalIcon">⚠️</div>
+    <div class="modal-icon"  id="modalIcon">⚠️</div>
     <div class="modal-title" id="modalTitle">Confirm Action</div>
-    <div class="modal-body" id="modalBody">Are you sure?</div>
+    <div class="modal-body"  id="modalBody">Are you sure?</div>
     <div class="modal-actions">
       <button class="modal-confirm" id="modalConfirm">Confirm</button>
       <button class="modal-cancel"  id="modalCancel">Cancel</button>
@@ -413,14 +673,14 @@
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import {
     getFirestore, collection, getDocs, doc, getDoc,
-    updateDoc, deleteDoc, query, orderBy, limit
+    updateDoc, deleteDoc, setDoc, query, orderBy
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
-    apiKey: "AIzaSyDgpI9Qn8Z_gvz9lruhq5VmZ8frEUlNKN4",
-    authDomain: "disaster-map-platform.firebaseapp.com",
-    projectId: "disaster-map-platform",
-    appId: "1:741032743359:web:bbe517d850e766e6ed910a",
+    apiKey:        "AIzaSyDgpI9Qn8Z_gvz9lruhq5VmZ8frEUlNKN4",
+    authDomain:    "disaster-map-platform.firebaseapp.com",
+    projectId:     "disaster-map-platform",
+    appId:         "1:741032743359:web:bbe517d850e766e6ed910a",
   };
 
   const app  = initializeApp(firebaseConfig);
@@ -431,12 +691,16 @@
   let allReports = [];
   let allArchive = [];
 
+  // ── SPINNER ──────────────────────────────────────────────────
   function showSpinner(msg = "Loading…") {
     document.getElementById("spinnerMsg").textContent = msg;
     document.getElementById("spinnerOverlay").classList.add("show");
   }
-  function hideSpinner() { document.getElementById("spinnerOverlay").classList.remove("show"); }
+  function hideSpinner() {
+    document.getElementById("spinnerOverlay").classList.remove("show");
+  }
 
+  // ── CONFIRM MODAL ────────────────────────────────────────────
   function showConfirm(icon, title, body, onConfirm) {
     document.getElementById("modalIcon").textContent  = icon;
     document.getElementById("modalTitle").textContent = title;
@@ -451,6 +715,7 @@
     };
   }
 
+  // ── FORMATTERS ───────────────────────────────────────────────
   function fmtDate(ts) {
     if (!ts?.toDate) return "—";
     return ts.toDate().toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" });
@@ -461,6 +726,84 @@
     return `<span class="role-badge ${cls}">${role || "community"}</span>`;
   }
 
+  // ── ADMIN: full numeric reputation score ─────────────────────
+  function repScoreCell(score, shadowBanned) {
+    if (shadowBanned) {
+      return `<span class="risk-badge risk-ban">🚫 Banned</span>`;
+    }
+    if (score === undefined || score === null) {
+      return `<span style="color:#4a5568;font-family:var(--mono);font-size:11px">New</span>`;
+    }
+    const pct = Math.round(score * 100);
+    let color;
+    if      (pct >= 75) color = "#5db88a";
+    else if (pct >= 45) color = "#d4a054";
+    else                color = "#e05252";
+    return `<div class="rep-score-wrap">
+      <div class="rep-bar-bg">
+        <div class="rep-bar-fill" style="width:${pct}%;background:${color}"></div>
+      </div>
+      <span class="rep-num" style="color:${color}">${pct}/100</span>
+    </div>`;
+  }
+
+  // ── LGU: simplified trust label (what LGU sees on the map) ──
+  function trustPill(score, shadowBanned) {
+    if (shadowBanned) {
+      return `<span class="trust-pill trust-banned">🚫 Banned</span>`;
+    }
+    if (score === undefined || score === null) {
+      return `<span class="trust-pill trust-new">🔵 New User</span>`;
+    }
+    const pct = Math.round(score * 100);
+    if (pct >= 65) return `<span class="trust-pill trust-trusted">✓ Trusted User</span>`;
+    if (pct >= 40) return `<span class="trust-pill trust-new">~ New User</span>`;
+    return `<span class="trust-pill trust-low">⚠ Low Reliability</span>`;
+  }
+
+  // ── Fake report percentage cell ──────────────────────────────
+  function fakePctCell(reportCount, fakeCount) {
+    if (!reportCount) return `<span style="color:#4a5568;font-size:11px;font-family:var(--mono)">—</span>`;
+    const pct = Math.round((fakeCount / reportCount) * 100);
+    const color = pct > 50 ? "#e05252" : pct > 25 ? "#d4a054" : "#5db88a";
+    return `<span style="color:${color};font-family:var(--mono);font-size:11.5px;font-weight:700">${pct}%</span>`;
+  }
+
+  // ── Risk badge (for reputation cards) ───────────────────────
+  function riskBadge(score, shadowBanned, reportCount, fakeCount) {
+    if (shadowBanned) return `<span class="risk-badge risk-ban">🚫 Shadow Banned</span>`;
+    if (score === undefined || score === null) return `<span class="risk-badge risk-low">🔵 New</span>`;
+    const pct     = Math.round(score * 100);
+    const fakePct = reportCount > 0 ? (fakeCount / reportCount) * 100 : 0;
+    if (pct < 30 || fakePct > 50) return `<span class="risk-badge risk-high">⚠ High Risk</span>`;
+    if (pct < 55 || fakePct > 25) return `<span class="risk-badge risk-mid">~ Medium</span>`;
+    return `<span class="risk-badge risk-low">✓ Low Risk</span>`;
+  }
+
+  // ── CONFIDENCE BADGE (reports table) ────────────────────────
+  function confidenceBadge(score, verified, flagged) {
+    if (verified) return `<span class="conf-badge" style="color:#5db88a">✓ Verified</span>`;
+    if (flagged)  return `<span class="conf-badge" style="color:#e05252">🚩 Flagged</span>`;
+    if (score === undefined || score === null)
+      return `<span style="color:#4a5568;font-size:11px">—</span>`;
+    const pct = Math.round(score * 100);
+    let color, label;
+    if      (pct >= 75) { color = "#5db88a"; label = `High (${pct}%)`; }
+    else if (pct >= 45) { color = "#d4a054"; label = `Mid (${pct}%)`;  }
+    else                { color = "#e05252"; label = `Low (${pct}%)`;   }
+    return `<span class="conf-badge" style="color:${color}">${label}</span>`;
+  }
+
+  // ── Is this user high risk? (helper) ────────────────────────
+  function isHighRisk(u) {
+    if (u.shadowBanned) return true;
+    if (u.trustScore === undefined || u.trustScore === null) return false;
+    const pct     = Math.round(u.trustScore * 100);
+    const fakePct = (u.reportCount || 0) > 0 ? ((u.fakeCount || 0) / u.reportCount) * 100 : 0;
+    return pct < 30 || fakePct > 50;
+  }
+
+  // ── LOGIN ────────────────────────────────────────────────────
   document.getElementById("adminLoginBtn").addEventListener("click", async () => {
     const email    = document.getElementById("adminEmail").value.trim();
     const password = document.getElementById("adminPassword").value;
@@ -469,7 +812,9 @@
     errEl.style.display = "none";
 
     if (!email || !password || !code) {
-      errEl.textContent = "All fields are required."; errEl.style.display = "block"; return;
+      errEl.textContent = "All fields are required.";
+      errEl.style.display = "block";
+      return;
     }
 
     showSpinner("Signing in…");
@@ -477,16 +822,19 @@
       const configDoc = await getDoc(doc(db, "system_config", "access"));
       if (!configDoc.exists() || code !== configDoc.data().sysadminSecret) {
         hideSpinner();
-        errEl.textContent = "Invalid system admin code."; errEl.style.display = "block"; return;
+        errEl.textContent = "Invalid system admin code.";
+        errEl.style.display = "block";
+        return;
       }
 
-      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const cred    = await signInWithEmailAndPassword(auth, email, password);
       const userDoc = await getDoc(doc(db, "users", cred.user.uid));
       if (!userDoc.exists() || userDoc.data().role !== "sysadmin") {
         await signOut(auth);
         hideSpinner();
         errEl.textContent = "This account does not have system admin privileges.";
-        errEl.style.display = "block"; return;
+        errEl.style.display = "block";
+        return;
       }
 
       hideSpinner();
@@ -494,11 +842,14 @@
 
     } catch (err) {
       hideSpinner();
-      errEl.textContent = err.code === "auth/invalid-credential" || err.code === "auth/wrong-password"
-        ? "Incorrect email or password." : "Login failed. Please try again.";
+      errEl.textContent =
+        err.code === "auth/invalid-credential" || err.code === "auth/wrong-password"
+          ? "Incorrect email or password."
+          : "Login failed. Please try again.";
       errEl.style.display = "block";
     }
   });
+
   document.getElementById("adminPassword").addEventListener("keydown", e => {
     if (e.key === "Enter") document.getElementById("adminLoginBtn").click();
   });
@@ -515,6 +866,7 @@
     window.location.reload();
   });
 
+  // ── TABS ─────────────────────────────────────────────────────
   document.querySelectorAll(".admin-tab").forEach(tab => {
     tab.addEventListener("click", () => {
       document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
@@ -524,6 +876,7 @@
     });
   });
 
+  // ── LOAD ALL DATA ────────────────────────────────────────────
   async function loadAllData() {
     showSpinner("Loading data…");
     try {
@@ -540,6 +893,7 @@
       allArchive = archSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
       renderUsers();
+      renderReputation();
       renderReports();
       renderArchive();
       renderOverview(heritageSnap.size, evacSnap.size);
@@ -551,41 +905,57 @@
   }
 
   document.getElementById("refreshUsersBtn").addEventListener("click", loadAllData);
+  document.getElementById("refreshRepBtn").addEventListener("click", loadAllData);
   document.getElementById("refreshReportsBtn").addEventListener("click", loadAllData);
   document.getElementById("refreshArchiveBtn").addEventListener("click", loadAllData);
 
+  // ── RENDER: USERS TAB ────────────────────────────────────────
   function renderUsers(filter = "") {
     const tbody = document.getElementById("usersTableBody");
     const fl    = filter.toLowerCase();
     const list  = filter
       ? allUsers.filter(u =>
-          (u.username||"").toLowerCase().includes(fl) ||
-          (u.email||"").toLowerCase().includes(fl) ||
-          (u.role||"").toLowerCase().includes(fl))
+          (u.username || "").toLowerCase().includes(fl) ||
+          (u.email    || "").toLowerCase().includes(fl) ||
+          (u.role     || "").toLowerCase().includes(fl))
       : allUsers;
 
-    document.getElementById("userCount").textContent = `${list.length} user${list.length !== 1 ? "s" : ""}`;
+    document.getElementById("userCount").textContent =
+      `${list.length} user${list.length !== 1 ? "s" : ""}`;
 
     if (!list.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="tbl-empty">No users found.</td></tr>`; return;
+      tbody.innerHTML = `<tr><td colspan="10" class="tbl-empty">No users found.</td></tr>`;
+      return;
     }
 
     tbody.innerHTML = list.map(u => `
       <tr>
         <td class="td-name">${u.username || "—"}</td>
-        <td class="td-mono">${u.email || "—"}</td>
-        <td class="td-mono">${u.phone || "—"}</td>
+        <td class="td-mono">${u.email    || "—"}</td>
+        <td class="td-mono">${u.phone    || "—"}</td>
         <td>${roleBadge(u.role)}</td>
+        <td>${trustPill(u.trustScore, u.shadowBanned)}</td>
+        <td>${repScoreCell(u.trustScore, u.shadowBanned)}</td>
+        <td class="td-mono" style="text-align:center">${u.reportCount || 0}</td>
+        <td>${fakePctCell(u.reportCount || 0, u.fakeCount || 0)}</td>
         <td class="td-mono">${fmtDate(u.createdAt)}</td>
         <td>
-          <select class="role-select" data-uid="${u.id}" data-current="${u.role||'community'}"
-            onchange="changeRole('${u.id}', this.value, '${u.username||u.email}')">
-            <option value="community" ${u.role==='community'?'selected':''}>Community</option>
-            <option value="lgu"       ${u.role==='lgu'?'selected':''}>LGU</option>
-            <option value="sysadmin"  ${u.role==='sysadmin'?'selected':''}>Sysadmin</option>
+          <select class="role-select"
+            onchange="window.changeRole('${u.id}', this.value, '${(u.username || u.email || "").replace(/'/g, "\\'")}')">
+            <option value="community" ${u.role === 'community' ? 'selected' : ''}>Community</option>
+            <option value="lgu"       ${u.role === 'lgu'       ? 'selected' : ''}>LGU</option>
+            <option value="sysadmin"  ${u.role === 'sysadmin'  ? 'selected' : ''}>Sysadmin</option>
           </select>
-          <button class="tbl-btn tbl-btn-del" style="margin-left:4px;"
-            onclick="deleteUser('${u.id}', '${(u.username||u.email).replace(/'/g,"\\'")}')">
+          ${u.shadowBanned
+            ? `<button class="tbl-btn tbl-btn-restore" style="margin-left:4px"
+                onclick="window.setShadowBan('${u.id}', false, '${(u.username || u.email || "").replace(/'/g, "\\'")}')">
+                Restore</button>`
+            : `<button class="tbl-btn tbl-btn-ban" style="margin-left:4px"
+                onclick="window.setShadowBan('${u.id}', true, '${(u.username || u.email || "").replace(/'/g, "\\'")}')">
+                Ban</button>`
+          }
+          <button class="tbl-btn tbl-btn-del"
+            onclick="window.deleteUser('${u.id}', '${(u.username || u.email || "").replace(/'/g, "\\'")}')">
             Delete
           </button>
         </td>
@@ -594,17 +964,264 @@
 
   document.getElementById("userSearch").addEventListener("input", e => renderUsers(e.target.value));
 
+  // ── RENDER: REPUTATION TAB ───────────────────────────────────
+  function renderReputation() {
+    let trusted = 0, newU = 0, lowRel = 0, banned = 0, highRisk = 0;
+
+    allUsers.forEach(u => {
+      if (u.shadowBanned) { banned++; highRisk++; return; }
+      if (u.trustScore === undefined || u.trustScore === null) { newU++; return; }
+      const pct     = Math.round(u.trustScore * 100);
+      const fakePct = (u.reportCount || 0) > 0 ? ((u.fakeCount || 0) / u.reportCount) * 100 : 0;
+      if (pct >= 65)         trusted++;
+      else if (pct >= 40)    newU++;
+      else                   lowRel++;
+      if (pct < 30 || fakePct > 50) highRisk++;
+    });
+
+    document.getElementById("rep-trusted").textContent  = trusted;
+    document.getElementById("rep-new").textContent      = newU;
+    document.getElementById("rep-lowrel").textContent   = lowRel;
+    document.getElementById("rep-banned").textContent   = banned;
+    document.getElementById("rep-highrisk").textContent = highRisk;
+    document.getElementById("repCount").textContent     =
+      `${allUsers.length} user${allUsers.length !== 1 ? "s" : ""} · ${highRisk} high risk`;
+
+    const highRiskUsers = allUsers.filter(isHighRisk);
+    document.getElementById("highRiskGrid").innerHTML = highRiskUsers.length
+      ? highRiskUsers.map(buildRepCard).join("")
+      : `<div class="tbl-empty" style="grid-column:1/-1;padding:30px">No high-risk accounts detected.</div>`;
+
+    document.getElementById("allRepGrid").innerHTML =
+      allUsers.length
+        ? allUsers.map(buildRepCard).join("")
+        : `<div class="tbl-empty" style="grid-column:1/-1">No users found.</div>`;
+  }
+
+  function buildRepCard(u) {
+    const pct       = (u.trustScore !== null && u.trustScore !== undefined) ? Math.round(u.trustScore * 100) : null;
+    const fakeCount = u.fakeCount   || 0;
+    const repCount  = u.reportCount || 0;
+    const fakePctV  = repCount > 0 ? Math.round((fakeCount / repCount) * 100) : 0;
+    let barColor    = "#4a5568";
+    if (pct !== null) barColor = pct >= 75 ? "#5db88a" : pct >= 45 ? "#d4a054" : "#e05252";
+    const fakePctColor = fakePctV > 50 ? "#e05252" : fakePctV > 25 ? "#d4a054" : "#5db88a";
+
+    return `<div class="rep-card">
+      <div class="rep-card-header">
+        <div>
+          <div class="rep-card-name">${u.username || "Unknown"}</div>
+          <div class="rep-card-email">${u.email || "—"}</div>
+        </div>
+        ${riskBadge(u.trustScore, u.shadowBanned, u.reportCount, u.fakeCount)}
+      </div>
+
+      ${pct !== null
+        ? `<div style="display:flex;align-items:center;gap:10px">
+            <div class="rep-bar-bg" style="flex:1;width:auto">
+              <div class="rep-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+            </div>
+            <span class="rep-num" style="color:${barColor}">${pct}/100</span>
+           </div>`
+        : `<div style="font-size:11px;color:var(--slate-dim);font-family:var(--mono)">No reputation score yet (new user)</div>`
+      }
+
+      <div class="rep-row">
+        <span class="rep-row-label">Role</span>
+        ${roleBadge(u.role)}
+      </div>
+      <div class="rep-row">
+        <span class="rep-row-label">Reports submitted</span>
+        <span class="rep-row-val">${repCount}</span>
+      </div>
+      <div class="rep-row">
+        <span class="rep-row-label">Fake / flagged reports</span>
+        <span class="rep-row-val" style="color:${fakePctColor}">${fakeCount} (${fakePctV}%)</span>
+      </div>
+      <div class="rep-row">
+        <span class="rep-row-label">LGU sees this user as</span>
+        ${trustPill(u.trustScore, u.shadowBanned)}
+      </div>
+      <div class="rep-row">
+        <span class="rep-row-label">Shadow ban</span>
+        <span class="rep-row-val" style="color:${u.shadowBanned ? '#e05252' : '#5db88a'}">
+          ${u.shadowBanned ? "🚫 Active" : "✓ None"}
+        </span>
+      </div>
+
+      <div class="rep-card-actions">
+        ${u.shadowBanned
+          ? `<button class="tbl-btn tbl-btn-restore"
+              onclick="window.setShadowBan('${u.id}', false, '${(u.username || u.email || "").replace(/'/g, "\\'")}')">
+              ↑ Restore Account</button>`
+          : `<button class="tbl-btn tbl-btn-ban"
+              onclick="window.setShadowBan('${u.id}', true, '${(u.username || u.email || "").replace(/'/g, "\\'")}')">
+              🚫 Shadow Ban</button>`
+        }
+        <button class="tbl-btn tbl-btn-warn"
+          onclick="window.warnUser('${u.id}', '${(u.username || u.email || "").replace(/'/g, "\\'")}')">
+          ⚠ Warn</button>
+        <button class="tbl-btn tbl-btn-del"
+          onclick="window.deleteUser('${u.id}', '${(u.username || u.email || "").replace(/'/g, "\\'")}')">
+          Delete</button>
+      </div>
+    </div>`;
+  }
+
+  // ── RENDER: REPORTS TAB ──────────────────────────────────────
+  function renderReports(filter = "") {
+    const tbody = document.getElementById("reportsTableBody");
+    const fl    = filter.toLowerCase();
+    const list  = filter
+      ? allReports.filter(r =>
+          (r.title    || "").toLowerCase().includes(fl) ||
+          (r.category || "").toLowerCase().includes(fl) ||
+          (r.status   || "").toLowerCase().includes(fl))
+      : allReports;
+
+    document.getElementById("reportsCount").textContent =
+      `${list.length} report${list.length !== 1 ? "s" : ""}`;
+
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="8" class="tbl-empty">No reports found.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = list.map(r => `
+      <tr>
+        <td class="td-name" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          ${r.title || "—"}
+        </td>
+        <td style="font-size:11.5px">${r.category || "—"}</td>
+        <td>${r.source === "lgu"
+          ? `<span class="role-badge role-lgu">LGU</span>`
+          : `<span class="role-badge role-community">Community</span>`}
+        </td>
+        <td>${r.status === "resolved"
+          ? `<span class="role-badge" style="background:rgba(136,142,160,.12);color:var(--gray);border:1px solid rgba(136,142,160,.2)">Resolved</span>`
+          : `<span class="role-badge" style="background:rgba(244,132,95,.12);color:var(--orange);border:1px solid rgba(244,132,95,.2)">Active</span>`}
+        </td>
+        <td style="text-align:center">${r.flagged
+          ? `<span style="color:var(--orange);font-size:12px">🚩 ${r.flagCount || 1}</span>`
+          : `<span style="color:var(--slate-dim);font-size:11px">—</span>`}
+        </td>
+        <td>${confidenceBadge(r.confidenceScore, r.verified, r.flagged)}</td>
+        <td class="td-mono">${fmtDate(r.createdAt)}</td>
+        <td>
+          <button class="tbl-btn tbl-btn-del"
+            onclick="window.deleteReport('${r.id}', '${(r.title || "Report").replace(/'/g, "\\'")}')">
+            Delete
+          </button>
+        </td>
+      </tr>`).join("");
+  }
+
+  document.getElementById("reportSearch").addEventListener("input", e => renderReports(e.target.value));
+
+  // ── RENDER: ARCHIVE TAB ──────────────────────────────────────
+  function renderArchive() {
+    const grid = document.getElementById("archiveGrid");
+    document.getElementById("archiveCount").textContent =
+      `${allArchive.length} archived report${allArchive.length !== 1 ? "s" : ""}`;
+
+    if (!allArchive.length) {
+      grid.innerHTML = `<div class="tbl-empty">No archived reports yet.</div>`;
+      return;
+    }
+
+    grid.innerHTML = allArchive.map(r => `
+      <div class="archive-card">
+        <div class="archive-card-header">
+          <span class="archive-cat">${r.category || "Report"}</span>
+          <span class="td-mono" style="font-size:10.5px">${fmtDate(r.archivedAt)}</span>
+        </div>
+        <div class="archive-title">${r.title || "Untitled"}</div>
+        <div class="archive-desc">${r.description || "No description."}</div>
+        <div class="archive-meta">
+          <span>${r.source === "lgu" ? "🔵 LGU" : "🟠 Community"}</span>
+          ${r.latitude ? `<span>📍 ${r.latitude.toFixed(4)}, ${r.longitude.toFixed(4)}</span>` : ""}
+        </div>
+        <button class="tbl-btn tbl-btn-del" style="margin-top:6px;width:100%"
+          onclick="window.deleteArchived('${r.id}', '${(r.title || "Report").replace(/'/g, "\\'")}')">
+          Delete Permanently
+        </button>
+      </div>`).join("");
+  }
+
+  // ── RENDER: OVERVIEW TAB ─────────────────────────────────────
+  function renderOverview(heritageSz, evacSz) {
+    document.getElementById("ov-heritage").textContent = heritageSz;
+    document.getElementById("ov-evac").textContent     = evacSz;
+    renderOverviewStats();
+  }
+
+  function renderOverviewStats() {
+    const lgu         = allUsers.filter(u => u.role === "lgu").length;
+    const active      = allReports.filter(r => r.status !== "resolved").length;
+    const resolved    = allReports.filter(r => r.status === "resolved").length;
+    const flagged     = allReports.filter(r => r.flagged && !r.verified).length;
+    const shadowBanned = allUsers.filter(u => u.shadowBanned).length;
+
+    document.getElementById("ov-users").textContent       = allUsers.length;
+    document.getElementById("ov-lgu").textContent         = lgu;
+    document.getElementById("ov-active").textContent      = active;
+    document.getElementById("ov-resolved").textContent    = resolved;
+    document.getElementById("ov-flagged").textContent     = flagged;
+    document.getElementById("ov-shadowbanned").textContent = shadowBanned;
+    document.getElementById("ov-archived").textContent    = allArchive.length;
+  }
+
+  // ── ACTIONS ──────────────────────────────────────────────────
+
   window.changeRole = async function(uid, newRole, name) {
-    showConfirm("🔄", "Change role?",
-      `Set "${name}" to ${newRole}?`,
+    showConfirm("🔄", "Change role?", `Set "${name}" to ${newRole}?`, async () => {
+      showSpinner("Updating role…");
+      try {
+        await updateDoc(doc(db, "users", uid), { role: newRole });
+        const u = allUsers.find(u => u.id === uid);
+        if (u) u.role = newRole;
+        renderUsers(document.getElementById("userSearch").value);
+        renderReputation();
+      } catch (err) { console.error(err); alert("Failed to update role."); }
+      hideSpinner();
+    });
+  };
+
+  window.setShadowBan = async function(uid, ban, name) {
+    const action = ban ? "shadow ban" : "restore";
+    showConfirm(
+      ban ? "🚫" : "✅",
+      ban ? "Shadow ban user?" : "Restore user?",
+      ban
+        ? `"${name}" will be silently blocked — they can still submit reports but they won't appear to others.`
+        : `"${name}" will be restored and their reports will be visible again.`,
       async () => {
-        showSpinner("Updating role…");
+        showSpinner(ban ? "Banning user…" : "Restoring user…");
         try {
-          await updateDoc(doc(db, "users", uid), { role: newRole });
+          await updateDoc(doc(db, "users", uid), { shadowBanned: ban });
           const u = allUsers.find(u => u.id === uid);
-          if (u) u.role = newRole;
+          if (u) u.shadowBanned = ban;
           renderUsers(document.getElementById("userSearch").value);
-        } catch (err) { console.error(err); alert("Failed to update role."); }
+          renderReputation();
+          renderOverviewStats();
+        } catch (err) { console.error(err); alert(`Failed to ${action}.`); }
+        hideSpinner();
+      }
+    );
+  };
+
+  window.warnUser = async function(uid, name) {
+    showConfirm("⚠️", "Send warning?",
+      `A warning flag will be added to "${name}"'s account record. They will not be notified automatically — contact them separately if needed.`,
+      async () => {
+        showSpinner("Recording warning…");
+        try {
+          await updateDoc(doc(db, "users", uid), {
+            warned:    true,
+            warnedAt:  new Date()
+          });
+          alert(`Warning recorded for ${name}.`);
+        } catch (err) { console.error(err); alert("Failed to record warning."); }
         hideSpinner();
       }
     );
@@ -619,53 +1236,13 @@
           await deleteDoc(doc(db, "users", uid));
           allUsers = allUsers.filter(u => u.id !== uid);
           renderUsers(document.getElementById("userSearch").value);
+          renderReputation();
           renderOverviewStats();
         } catch (err) { console.error(err); alert("Failed to delete user."); }
         hideSpinner();
       }
     );
   };
-
-  function renderReports(filter = "") {
-    const tbody = document.getElementById("reportsTableBody");
-    const fl    = filter.toLowerCase();
-    const list  = filter
-      ? allReports.filter(r =>
-          (r.title||"").toLowerCase().includes(fl) ||
-          (r.category||"").toLowerCase().includes(fl) ||
-          (r.status||"").toLowerCase().includes(fl))
-      : allReports;
-
-    document.getElementById("reportsCount").textContent = `${list.length} report${list.length !== 1 ? "s" : ""}`;
-
-    if (!list.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="tbl-empty">No reports found.</td></tr>`; return;
-    }
-
-    tbody.innerHTML = list.map(r => `
-      <tr>
-        <td class="td-name" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.title || "—"}</td>
-        <td style="font-size:11.5px;">${r.category || "—"}</td>
-        <td>${r.source === "lgu"
-          ? `<span class="role-badge role-lgu">LGU</span>`
-          : `<span class="role-badge role-community">Community</span>`}</td>
-        <td>${r.status === "resolved"
-          ? `<span class="role-badge" style="background:rgba(136,142,160,.12);color:var(--gray);border:1px solid rgba(136,142,160,.2);">Resolved</span>`
-          : `<span class="role-badge" style="background:rgba(244,132,95,.12);color:var(--orange);border:1px solid rgba(244,132,95,.2);">Active</span>`}</td>
-        <td style="text-align:center;">${r.flagged
-          ? `<span style="color:var(--orange);font-size:12px;">🚩 ${r.flagCount||1}</span>`
-          : `<span style="color:var(--slate-dim);font-size:11px;">—</span>`}</td>
-        <td class="td-mono">${fmtDate(r.createdAt)}</td>
-        <td>
-          <button class="tbl-btn tbl-btn-del"
-            onclick="deleteReport('${r.id}', '${(r.title||'Report').replace(/'/g,"\\'")}')">
-            Delete
-          </button>
-        </td>
-      </tr>`).join("");
-  }
-
-  document.getElementById("reportSearch").addEventListener("input", e => renderReports(e.target.value));
 
   window.deleteReport = async function(id, title) {
     showConfirm("🗑️", "Permanently delete report?",
@@ -683,34 +1260,6 @@
     );
   };
 
-  function renderArchive() {
-    const grid = document.getElementById("archiveGrid");
-    document.getElementById("archiveCount").textContent =
-      `${allArchive.length} archived report${allArchive.length !== 1 ? "s" : ""}`;
-
-    if (!allArchive.length) {
-      grid.innerHTML = `<div class="tbl-empty">No archived reports yet.</div>`; return;
-    }
-
-    grid.innerHTML = allArchive.map(r => `
-      <div class="archive-card">
-        <div class="archive-card-header">
-          <span class="archive-cat">${r.category || "Report"}</span>
-          <span class="td-mono" style="font-size:10.5px;">${fmtDate(r.archivedAt)}</span>
-        </div>
-        <div class="archive-title">${r.title || "Untitled"}</div>
-        <div class="archive-desc">${r.description || "No description."}</div>
-        <div class="archive-meta">
-          <span>${r.source === "lgu" ? "🔵 LGU" : "🟠 Community"}</span>
-          ${r.latitude ? `<span>📍 ${r.latitude.toFixed(4)}, ${r.longitude.toFixed(4)}</span>` : ""}
-        </div>
-        <button class="tbl-btn tbl-btn-del" style="margin-top:6px;width:100%;"
-          onclick="deleteArchived('${r.id}', '${(r.title||'Report').replace(/'/g,"\\'")}')">
-          Delete Permanently
-        </button>
-      </div>`).join("");
-  }
-
   window.deleteArchived = async function(id, title) {
     showConfirm("🗑️", "Delete archived report?",
       `"${title}" will be permanently removed from the archive.`,
@@ -727,26 +1276,7 @@
     );
   };
 
-  function renderOverview(heritageSz, evacSz) {
-    document.getElementById("ov-heritage").textContent = heritageSz;
-    document.getElementById("ov-evac").textContent     = evacSz;
-    renderOverviewStats();
-  }
-
-  function renderOverviewStats() {
-    const lgu      = allUsers.filter(u => u.role === "lgu").length;
-    const active   = allReports.filter(r => r.status !== "resolved").length;
-    const resolved = allReports.filter(r => r.status === "resolved").length;
-    const flagged  = allReports.filter(r => r.flagged && !r.verified).length;
-
-    document.getElementById("ov-users").textContent    = allUsers.length;
-    document.getElementById("ov-lgu").textContent      = lgu;
-    document.getElementById("ov-active").textContent   = active;
-    document.getElementById("ov-resolved").textContent = resolved;
-    document.getElementById("ov-flagged").textContent  = flagged;
-    document.getElementById("ov-archived").textContent = allArchive.length;
-  }
-
+  // ── AUTH STATE ────────────────────────────────────────────────
   onAuthStateChanged(auth, async (user) => {
     if (!user) return;
     const userDoc = await getDoc(doc(db, "users", user.uid));

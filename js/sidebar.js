@@ -236,6 +236,55 @@ function injectMobileStyles() {
       #section-mobile-home.content-section.scrollable,
       #section-map.content-section { padding-top: 0 !important; }
     }
+
+    /* ── REPUTATION CARDS ── */
+    .rep-cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
+    .rep-card { background:rgba(21,30,46,0.8); border:1px solid rgba(255,255,255,0.09); border-radius:13px; padding:16px 18px; display:flex; flex-direction:column; gap:10px; }
+    .rep-card-header { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+    .rep-card-name  { font-size:13.5px; font-weight:600; color:#c5d5e8; }
+    .rep-card-email { font-size:11px; color:#6a85a8; font-family:'DM Mono',monospace; margin-top:2px; }
+    .rep-card-row   { display:flex; align-items:center; justify-content:space-between; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:12px; }
+    .rep-card-row:last-of-type { border-bottom:none; }
+    .rep-card-row-label { color:#5c7490; }
+    .rep-card-row-val   { font-weight:600; font-family:'DM Mono',monospace; font-size:11.5px; }
+    .rep-bar-bg   { width:64px; height:5px; border-radius:3px; background:rgba(255,255,255,0.08); flex-shrink:0; }
+    .rep-bar-fill { height:5px; border-radius:3px; }
+    .rep-score-wrap { display:flex; align-items:center; gap:8px; }
+    .rep-num { font-family:'DM Mono',monospace; font-size:11.5px; font-weight:700; min-width:44px; }
+    .rep-card-actions { display:flex; gap:6px; margin-top:4px; flex-wrap:wrap; }
+
+    /* ── SHARED SMALL BUTTONS ── */
+    .tbl-btn-inner { padding:4px 10px; border-radius:7px; cursor:pointer; font-size:11px; font-weight:600; font-family:'DM Sans',sans-serif; border:1px solid; transition:all 0.18s; flex:1; text-align:center; }
+    .tbl-ban-btn     { background:rgba(224,82,82,0.07); border-color:rgba(224,82,82,0.22); color:#d98080; }
+    .tbl-ban-btn:hover { background:rgba(224,82,82,0.18); }
+    .tbl-restore-btn { background:rgba(93,184,138,0.08); border-color:rgba(93,184,138,0.25); color:#5db88a; }
+    .tbl-restore-btn:hover { background:rgba(93,184,138,0.2); }
+    .tbl-warn-btn    { background:rgba(212,160,84,0.08); border-color:rgba(212,160,84,0.25); color:#d4a054; }
+    .tbl-warn-btn:hover { background:rgba(212,160,84,0.2); }
+    .tbl-del-btn     { background:rgba(224,82,82,0.07); border-color:rgba(224,82,82,0.22); color:#d98080; }
+    .tbl-del-btn:hover { background:rgba(224,82,82,0.18); }
+
+    /* ── RISK / TRUST BADGES ── */
+    .risk-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:10px; font-weight:700; font-family:'DM Mono',monospace; }
+    .risk-low  { background:rgba(93,184,138,0.12); color:#5db88a; border:1px solid rgba(93,184,138,0.25); }
+    .risk-mid  { background:rgba(212,160,84,0.12); color:#d4a054; border:1px solid rgba(212,160,84,0.25); }
+    .risk-high { background:rgba(244,132,95,0.15); color:#f4845f; border:1px solid rgba(244,132,95,0.3); }
+    .risk-ban  { background:rgba(224,82,82,0.15);  color:#e05252; border:1px solid rgba(224,82,82,0.3); }
+    .trust-pill { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:10px; font-weight:700; font-family:'DM Mono',monospace; }
+    .trust-trusted { background:rgba(93,184,138,0.12); color:#5db88a; border:1px solid rgba(93,184,138,0.25); }
+    .trust-new     { background:rgba(91,164,200,0.1);  color:#5ba4c8; border:1px solid rgba(91,164,200,0.2); }
+    .trust-low-rel { background:rgba(244,132,95,0.12); color:#f4845f; border:1px solid rgba(244,132,95,0.25); }
+    .trust-banned  { background:rgba(224,82,82,0.15);  color:#e05252; border:1px solid rgba(224,82,82,0.3); }
+
+    /* ── ENHANCED USER TABLE INLINE BUTTONS ── */
+    .admin-ban-btn     { padding:4px 10px; border-radius:7px; cursor:pointer; font-size:11px; font-weight:600; font-family:'DM Sans',sans-serif; background:rgba(224,82,82,0.07); border:1px solid rgba(224,82,82,0.22); color:#d98080; transition:all 0.18s; margin-left:4px; }
+    .admin-ban-btn:hover { background:rgba(224,82,82,0.18); }
+    .admin-restore-btn { padding:4px 10px; border-radius:7px; cursor:pointer; font-size:11px; font-weight:600; font-family:'DM Sans',sans-serif; background:rgba(93,184,138,0.08); border:1px solid rgba(93,184,138,0.25); color:#5db88a; transition:all 0.18s; margin-left:4px; }
+    .admin-restore-btn:hover { background:rgba(93,184,138,0.2); }
+
+    /* ── SECTION SEPARATOR ── */
+    .rep-sep { font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#5c7490; margin:20px 0 14px; display:flex; align-items:center; gap:10px; }
+    .rep-sep::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.09); }
   `;
   document.head.appendChild(style);
 }
@@ -281,12 +330,8 @@ function updateMobileHome(username, role, photoBase64) {
     }
   }
 
-  if (role === "lgu") {
-    document.getElementById("mhDashCard")?.classList.remove("hidden");
-  }
-  if (role === "sysadmin") {
-    document.getElementById("mhAdminCard")?.classList.remove("hidden");
-  }
+  if (role === "lgu")      document.getElementById("mhDashCard")?.classList.remove("hidden");
+  if (role === "sysadmin") document.getElementById("mhAdminCard")?.classList.remove("hidden");
 }
 
 // ══════════════════════════════════════════════
@@ -366,7 +411,6 @@ export function setSidebarUser(user, role, profile = {}) {
     : "—";
   document.getElementById("profileJoined").textContent = joined;
 
-  // ── Show role-specific nav items ──
   if (role?.toLowerCase() === "lgu") {
     document.querySelectorAll(".lgu-only").forEach(el => el.classList.remove("hidden"));
   }
@@ -742,22 +786,31 @@ async function loadDashboard() {
   }
 }
 
-// ── ADMIN PANEL ────────────────────────────────
-let adminLoaded = false;
-let allAdminUsers   = [];
-let allAdminArchive = [];
+// ══════════════════════════════════════════════
+//  ADMIN PANEL
+// ══════════════════════════════════════════════
+let adminLoaded      = false;
+let allAdminUsers    = [];
+let allAdminReports  = [];
+let allAdminArchive  = [];
 
 function loadAdminPanel() {
   if (!adminLoaded) {
+    // Wire tab switching
     document.querySelectorAll(".admin-tab-inner").forEach(tab => {
       tab.addEventListener("click", () => {
         document.querySelectorAll(".admin-tab-inner").forEach(t => t.classList.remove("active"));
         document.querySelectorAll(".admin-tab-panel").forEach(p => p.classList.remove("active"));
         tab.classList.add("active");
-        document.getElementById(`adminTab${tab.dataset.admintab.charAt(0).toUpperCase()+tab.dataset.admintab.slice(1)}`).classList.add("active");
+        const panelId = "adminTab" + tab.dataset.admintab.charAt(0).toUpperCase() + tab.dataset.admintab.slice(1);
+        document.getElementById(panelId)?.classList.add("active");
       });
     });
+
+    // Search wiring
     document.getElementById("adminUserSearch")?.addEventListener("input", e => renderAdminUsers(e.target.value));
+    document.getElementById("adminReportSearch")?.addEventListener("input", e => renderAdminReports(e.target.value));
+
     adminLoaded = true;
   }
   fetchAdminData();
@@ -766,123 +819,389 @@ function loadAdminPanel() {
 async function fetchAdminData() {
   try {
     const [userSnap, incSnap, archSnap, heritageSnap, evacSnap] = await Promise.all([
-      getDocs(collection(db,"users")),
-      getDocs(collection(db,"incidents")),
-      getDocs(query(collection(db,"archived_incidents"), orderBy("archivedAt","desc"))),
-      getDocs(collection(db,"heritage_sites")),
-      getDocs(collection(db,"evacuation_centers"))
+      getDocs(collection(db, "users")),
+      getDocs(query(collection(db, "incidents"), orderBy("createdAt", "desc"))),
+      getDocs(query(collection(db, "archived_incidents"), orderBy("archivedAt", "desc"))),
+      getDocs(collection(db, "heritage_sites")),
+      getDocs(collection(db, "evacuation_centers"))
     ]);
 
-    allAdminUsers   = userSnap.docs.map(d=>({id:d.id,...d.data()}));
-    allAdminArchive = archSnap.docs.map(d=>({id:d.id,...d.data()}));
+    allAdminUsers   = userSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allAdminReports = incSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allAdminArchive = archSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
     renderAdminUsers();
+    renderReputation();
+    renderAdminReports();
     renderAdminArchive();
-    renderAdminOverview(incSnap, heritageSnap.size, evacSnap.size);
-  } catch(err) { console.error("fetchAdminData:", err); }
+    renderAdminOverview(heritageSnap.size, evacSnap.size);
+  } catch (err) {
+    console.error("fetchAdminData:", err);
+  }
 }
 
+// ── FORMATTERS ─────────────────────────────────
 function fmtDate(ts) {
   if (!ts?.toDate) return "—";
-  return ts.toDate().toLocaleDateString("en-PH",{month:"short",day:"numeric",year:"numeric"});
+  return ts.toDate().toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" });
 }
 
 function roleBadge(role) {
-  const cls = role==="sysadmin" ? "role-sysadmin" : role==="lgu" ? "role-lgu" : "role-community";
-  return `<span class="admin-role-badge ${cls}">${role||"community"}</span>`;
+  const cls = role === "sysadmin" ? "role-sysadmin" : role === "lgu" ? "role-lgu" : "role-community";
+  return `<span class="admin-role-badge ${cls}">${role || "community"}</span>`;
 }
 
-function renderAdminUsers(filter="") {
+function trustPill(score, banned) {
+  if (banned)      return `<span class="trust-pill trust-banned">🚫 Banned</span>`;
+  if (score == null) return `<span class="trust-pill trust-new">🔵 New</span>`;
+  const p = Math.round(score * 100);
+  if (p >= 65) return `<span class="trust-pill trust-trusted">✓ Trusted</span>`;
+  if (p >= 40) return `<span class="trust-pill trust-new">~ New</span>`;
+  return `<span class="trust-pill trust-low-rel">⚠ Low</span>`;
+}
+
+function repScoreCell(score, banned) {
+  if (banned) return `<span class="risk-badge risk-ban">🚫 Banned</span>`;
+  if (score == null) return `<span style="color:#4a5568;font-family:'DM Mono',monospace;font-size:11px">New</span>`;
+  const p = Math.round(score * 100);
+  const c = p >= 75 ? "#5db88a" : p >= 45 ? "#d4a054" : "#e05252";
+  return `<div class="rep-score-wrap">
+    <div class="rep-bar-bg"><div class="rep-bar-fill" style="width:${p}%;background:${c}"></div></div>
+    <span class="rep-num" style="color:${c}">${p}/100</span>
+  </div>`;
+}
+
+function fakePctCell(rCount, fCount) {
+  if (!rCount) return `<span style="color:#4a5568;font-family:'DM Mono',monospace;font-size:11px">—</span>`;
+  const p = Math.round((fCount / rCount) * 100);
+  const c = p > 50 ? "#e05252" : p > 25 ? "#d4a054" : "#5db88a";
+  return `<span style="color:${c};font-family:'DM Mono',monospace;font-size:11.5px;font-weight:700">${p}%</span>`;
+}
+
+function riskBadge(score, banned, rCount, fCount) {
+  if (banned) return `<span class="risk-badge risk-ban">🚫 Banned</span>`;
+  if (score == null) return `<span class="risk-badge risk-low">🔵 New</span>`;
+  const p  = Math.round(score * 100);
+  const fp = rCount > 0 ? (fCount / rCount) * 100 : 0;
+  if (p < 30 || fp > 50) return `<span class="risk-badge risk-high">⚠ High Risk</span>`;
+  if (p < 55 || fp > 25) return `<span class="risk-badge risk-mid">~ Medium</span>`;
+  return `<span class="risk-badge risk-low">✓ Low Risk</span>`;
+}
+
+function isHighRisk(u) {
+  if (u.shadowBanned) return true;
+  if (u.trustScore == null) return false;
+  const p  = Math.round(u.trustScore * 100);
+  const fp = (u.reportCount || 0) > 0 ? ((u.fakeCount || 0) / u.reportCount) * 100 : 0;
+  return p < 30 || fp > 50;
+}
+
+function confidenceBadge(score, verified, flagged) {
+  if (verified) return `<span style="color:#5db88a;font-size:11px;font-weight:700">✓ Verified</span>`;
+  if (flagged)  return `<span style="color:#e05252;font-size:11px;font-weight:700">🚩 Flagged</span>`;
+  if (score == null) return `<span style="color:#4a5568;font-size:11px">—</span>`;
+  const p = Math.round(score * 100);
+  const [c, l] = p >= 75 ? ["#5db88a", `High (${p}%)`] : p >= 45 ? ["#d4a054", `Mid (${p}%)`] : ["#e05252", `Low (${p}%)`];
+  return `<span style="color:${c};font-size:11px;font-weight:700">${l}</span>`;
+}
+
+// ── RENDER: USERS (enhanced) ───────────────────
+function renderAdminUsers(filter = "") {
   const tbody = document.getElementById("adminUsersBody");
   if (!tbody) return;
-  const fl = filter.toLowerCase();
+  const fl   = filter.toLowerCase();
   const list = filter
-    ? allAdminUsers.filter(u=>(u.username||"").toLowerCase().includes(fl)||(u.email||"").toLowerCase().includes(fl)||(u.role||"").toLowerCase().includes(fl))
+    ? allAdminUsers.filter(u =>
+        (u.username || "").toLowerCase().includes(fl) ||
+        (u.email    || "").toLowerCase().includes(fl) ||
+        (u.role     || "").toLowerCase().includes(fl))
     : allAdminUsers;
 
-  if (!list.length) { tbody.innerHTML=`<tr><td colspan="5" class="admin-tbl-empty">No users found.</td></tr>`; return; }
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="admin-tbl-empty">No users found.</td></tr>`;
+    return;
+  }
 
-  tbody.innerHTML = list.map(u=>`
+  tbody.innerHTML = list.map(u => `
     <tr>
-      <td class="admin-td-name">${u.username||"—"}</td>
-      <td class="admin-td-mono">${u.email||"—"}</td>
+      <td class="admin-td-name">${u.username || "—"}</td>
+      <td class="admin-td-mono">${u.email    || "—"}</td>
+      <td class="admin-td-mono">${u.phone    || "—"}</td>
       <td>${roleBadge(u.role)}</td>
+      <td>${trustPill(u.trustScore, u.shadowBanned)}</td>
+      <td>${repScoreCell(u.trustScore, u.shadowBanned)}</td>
+      <td class="admin-td-mono" style="text-align:center">${u.reportCount || 0}</td>
+      <td>${fakePctCell(u.reportCount || 0, u.fakeCount || 0)}</td>
       <td class="admin-td-mono">${fmtDate(u.createdAt)}</td>
       <td>
-        <select class="admin-role-select" onchange="adminChangeRole('${u.id}',this.value,'${(u.username||u.email||"").replace(/'/g,"\\'")}')">
-          <option value="community" ${u.role==="community"?"selected":""}>Community</option>
-          <option value="lgu"       ${u.role==="lgu"      ?"selected":""}>LGU</option>
-          <option value="sysadmin"  ${u.role==="sysadmin" ?"selected":""}>Sysadmin</option>
+        <select class="admin-role-select"
+          onchange="adminChangeRole('${u.id}',this.value,'${(u.username || u.email || "").replace(/'/g, "\\'")}')">
+          <option value="community" ${u.role === "community" ? "selected" : ""}>Community</option>
+          <option value="lgu"       ${u.role === "lgu"       ? "selected" : ""}>LGU</option>
+          <option value="sysadmin"  ${u.role === "sysadmin"  ? "selected" : ""}>Sysadmin</option>
         </select>
-        <button class="admin-del-btn" onclick="adminDeleteUser('${u.id}','${(u.username||u.email||"").replace(/'/g,"\\'")}')">Delete</button>
+        ${u.shadowBanned
+          ? `<button class="admin-restore-btn" onclick="adminSetBan('${u.id}',false,'${(u.username || u.email || "").replace(/'/g, "\\'")}')">Restore</button>`
+          : `<button class="admin-ban-btn"     onclick="adminSetBan('${u.id}',true,'${(u.username || u.email || "").replace(/'/g, "\\'")}')">Ban</button>`
+        }
+        <button class="admin-del-btn" onclick="adminDeleteUser('${u.id}','${(u.username || u.email || "").replace(/'/g, "\\'")}')">Delete</button>
       </td>
     </tr>`).join("");
 }
 
-window.adminChangeRole = async function(uid, newRole, name) {
-  adminConfirm("🔄","Change role?",`Set "${name}" to ${newRole}?`, async()=>{
-    try {
-      await updateDoc(doc(db,"users",uid),{role:newRole});
-      const u = allAdminUsers.find(u=>u.id===uid);
-      if(u) u.role = newRole;
-      renderAdminUsers(document.getElementById("adminUserSearch")?.value||"");
-    } catch(err){console.error(err);}
+// ── RENDER: REPUTATION TAB ─────────────────────
+function renderReputation() {
+  let trusted = 0, newU = 0, lowRel = 0, banned = 0, highRisk = 0;
+  allAdminUsers.forEach(u => {
+    if (u.shadowBanned) { banned++; highRisk++; return; }
+    if (u.trustScore == null) { newU++; return; }
+    const p  = Math.round(u.trustScore * 100);
+    const fp = (u.reportCount || 0) > 0 ? ((u.fakeCount || 0) / u.reportCount) * 100 : 0;
+    if (p >= 65) trusted++;
+    else if (p >= 40) newU++;
+    else lowRel++;
+    if (p < 30 || fp > 50) highRisk++;
   });
-};
 
-window.adminDeleteUser = async function(uid, name) {
-  adminConfirm("🗑️","Delete user?",`Remove "${name}" from Firestore? Their login account remains.`, async()=>{
-    try {
-      await deleteDoc(doc(db,"users",uid));
-      allAdminUsers = allAdminUsers.filter(u=>u.id!==uid);
-      renderAdminUsers(document.getElementById("adminUserSearch")?.value||"");
-      fetchAdminData();
-    } catch(err){console.error(err);}
-  });
-};
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setEl("repTrusted",  trusted);
+  setEl("repNew",      newU);
+  setEl("repLowRel",   lowRel);
+  setEl("repBanned",   banned);
+  setEl("repHighRisk", highRisk);
 
+  const hrGrid  = document.getElementById("adminHighRiskGrid");
+  const allGrid = document.getElementById("adminAllRepGrid");
+  if (!hrGrid || !allGrid) return;
+
+  const hiUsers = allAdminUsers.filter(isHighRisk);
+  hrGrid.innerHTML  = hiUsers.length
+    ? hiUsers.map(buildRepCard).join("")
+    : `<div class="admin-tbl-empty" style="grid-column:1/-1">No high-risk accounts detected.</div>`;
+  allGrid.innerHTML = allAdminUsers.length
+    ? allAdminUsers.map(buildRepCard).join("")
+    : `<div class="admin-tbl-empty" style="grid-column:1/-1">No users found.</div>`;
+}
+
+function buildRepCard(u) {
+  const pct  = u.trustScore != null ? Math.round(u.trustScore * 100) : null;
+  const fCnt = u.fakeCount   || 0;
+  const rCnt = u.reportCount || 0;
+  const fpct = rCnt > 0 ? Math.round((fCnt / rCnt) * 100) : 0;
+  const barC = pct == null ? "#4a5568" : pct >= 75 ? "#5db88a" : pct >= 45 ? "#d4a054" : "#e05252";
+  const fC   = fpct > 50 ? "#e05252" : fpct > 25 ? "#d4a054" : "#5db88a";
+
+  return `<div class="rep-card">
+    <div class="rep-card-header">
+      <div>
+        <div class="rep-card-name">${u.username || "Unknown"}</div>
+        <div class="rep-card-email">${u.email || "—"}</div>
+      </div>
+      ${riskBadge(u.trustScore, u.shadowBanned, rCnt, fCnt)}
+    </div>
+    ${pct != null
+      ? `<div class="rep-score-wrap" style="gap:10px">
+          <div class="rep-bar-bg" style="flex:1;width:auto">
+            <div class="rep-bar-fill" style="width:${pct}%;background:${barC}"></div>
+          </div>
+          <span class="rep-num" style="color:${barC}">${pct}/100</span>
+        </div>`
+      : `<div style="font-size:11px;color:#5c7490;font-family:'DM Mono',monospace">No score yet (new user)</div>`
+    }
+    <div class="rep-card-row"><span class="rep-card-row-label">Role</span>${roleBadge(u.role)}</div>
+    <div class="rep-card-row"><span class="rep-card-row-label">Reports submitted</span><span class="rep-card-row-val">${rCnt}</span></div>
+    <div class="rep-card-row"><span class="rep-card-row-label">Fake / flagged</span><span class="rep-card-row-val" style="color:${fC}">${fCnt} (${fpct}%)</span></div>
+    <div class="rep-card-row"><span class="rep-card-row-label">LGU sees</span>${trustPill(u.trustScore, u.shadowBanned)}</div>
+    <div class="rep-card-row"><span class="rep-card-row-label">Shadow ban</span>
+      <span class="rep-card-row-val" style="color:${u.shadowBanned ? "#e05252" : "#5db88a"}">
+        ${u.shadowBanned ? "🚫 Active" : "✓ None"}
+      </span>
+    </div>
+    <div class="rep-card-actions">
+      ${u.shadowBanned
+        ? `<button class="tbl-btn-inner tbl-restore-btn" onclick="adminSetBan('${u.id}',false,'${(u.username || u.email || "").replace(/'/g, "\\'")}')">↑ Restore</button>`
+        : `<button class="tbl-btn-inner tbl-ban-btn"     onclick="adminSetBan('${u.id}',true,'${(u.username || u.email || "").replace(/'/g, "\\'")}')">🚫 Ban</button>`
+      }
+      <button class="tbl-btn-inner tbl-warn-btn" onclick="adminWarnUser('${u.id}','${(u.username || u.email || "").replace(/'/g, "\\'")}')">⚠ Warn</button>
+      <button class="tbl-btn-inner tbl-del-btn"  onclick="adminDeleteUser('${u.id}','${(u.username || u.email || "").replace(/'/g, "\\'")}')">Delete</button>
+    </div>
+  </div>`;
+}
+
+// ── RENDER: REPORTS OVERVIEW ───────────────────
+function renderAdminReports(filter = "") {
+  const tbody = document.getElementById("adminReportsBody");
+  if (!tbody) return;
+  const fl   = filter.toLowerCase();
+  const list = filter
+    ? allAdminReports.filter(r =>
+        (r.title    || "").toLowerCase().includes(fl) ||
+        (r.category || "").toLowerCase().includes(fl) ||
+        (r.status   || "").toLowerCase().includes(fl))
+    : allAdminReports;
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="admin-tbl-empty">No reports found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(r => `
+    <tr>
+      <td class="admin-td-name" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.title || "—"}</td>
+      <td style="font-size:11.5px">${r.category || "—"}</td>
+      <td>${r.source === "lgu"
+        ? `<span class="admin-role-badge role-lgu">LGU</span>`
+        : `<span class="admin-role-badge role-community">Community</span>`}
+      </td>
+      <td>${r.status === "resolved"
+        ? `<span class="admin-role-badge" style="background:rgba(136,142,160,.12);color:#888ea0;border:1px solid rgba(136,142,160,.2)">Resolved</span>`
+        : `<span class="admin-role-badge" style="background:rgba(244,132,95,.12);color:#f4845f;border:1px solid rgba(244,132,95,.2)">Active</span>`}
+      </td>
+      <td style="text-align:center">${r.flagged
+        ? `<span style="color:#f4845f;font-size:12px">🚩 ${r.flagCount || 1}</span>`
+        : `<span style="color:#5c7490;font-size:11px">—</span>`}
+      </td>
+      <td>${confidenceBadge(r.confidenceScore, r.verified, r.flagged)}</td>
+      <td class="admin-td-mono">${fmtDate(r.createdAt)}</td>
+      <td>
+        <button class="admin-del-btn" onclick="adminDeleteReport('${r.id}','${(r.title || "Report").replace(/'/g, "\\'")}')">Delete</button>
+      </td>
+    </tr>`).join("");
+}
+
+// ── RENDER: ARCHIVE ────────────────────────────
 function renderAdminArchive() {
   const grid = document.getElementById("adminArchiveGrid");
   if (!grid) return;
-  if (!allAdminArchive.length) { grid.innerHTML=`<div class="admin-tbl-empty">No archived reports yet.</div>`; return; }
-  grid.innerHTML = allAdminArchive.map(r=>`
+  if (!allAdminArchive.length) {
+    grid.innerHTML = `<div class="admin-tbl-empty">No archived reports yet.</div>`;
+    return;
+  }
+  grid.innerHTML = allAdminArchive.map(r => `
     <div class="archive-card">
-      <div><span class="archive-card-cat">${r.category||"Report"}</span></div>
-      <div class="archive-card-title">${r.title||"Untitled"}</div>
-      <div class="archive-card-desc">${r.description||"No description."}</div>
+      <div><span class="archive-card-cat">${r.category || "Report"}</span></div>
+      <div class="archive-card-title">${r.title || "Untitled"}</div>
+      <div class="archive-card-desc">${r.description || "No description."}</div>
       <div class="archive-card-meta">
-        <span>${r.source==="lgu"?"🔵 LGU":"🟠 Community"}</span>
+        <span>${r.source === "lgu" ? "🔵 LGU" : "🟠 Community"}</span>
         <span>🗄 ${fmtDate(r.archivedAt)}</span>
       </div>
       <button class="admin-del-btn" style="width:100%;margin-top:4px;"
-        onclick="adminDeleteArchive('${r.id}','${(r.title||"Report").replace(/'/g,"\\'")}')">
+        onclick="adminDeleteArchive('${r.id}','${(r.title || "Report").replace(/'/g, "\\'")}')">
         Delete Permanently
       </button>
     </div>`).join("");
 }
 
-window.adminDeleteArchive = async function(id, title) {
-  adminConfirm("🗑️","Delete archived report?",`"${title}" will be permanently removed.`, async()=>{
-    try {
-      await deleteDoc(doc(db,"archived_incidents",id));
-      allAdminArchive = allAdminArchive.filter(r=>r.id!==id);
-      renderAdminArchive();
-    } catch(err){console.error(err);}
-  });
-};
+// ── RENDER: OVERVIEW ───────────────────────────
+function renderAdminOverview(heritageSz, evacSz) {
+  const active      = allAdminReports.filter(r => r.status !== "resolved").length;
+  const resolved    = allAdminReports.filter(r => r.status === "resolved").length;
+  const flagged     = allAdminReports.filter(r => r.flagged && !r.verified).length;
+  const shadowBanned = allAdminUsers.filter(u => u.shadowBanned).length;
 
-function renderAdminOverview(incSnap, heritageSz, evacSz) {
-  let active=0, resolved=0;
-  incSnap.forEach(d=>{ const data=d.data(); if(data.status==="resolved") resolved++; else active++; });
-  const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   setEl("ovTotalUsers",      allAdminUsers.length);
-  setEl("ovLguUsers",        allAdminUsers.filter(u=>u.role==="lgu").length);
+  setEl("ovLguUsers",        allAdminUsers.filter(u => u.role === "lgu").length);
   setEl("ovActiveReports",   active);
   setEl("ovResolvedReports", resolved);
+  setEl("ovFlagged",         flagged);
+  setEl("ovShadowBanned",    shadowBanned);
   setEl("ovArchived",        allAdminArchive.length);
   setEl("ovHeritage",        heritageSz);
   setEl("ovEvac",            evacSz);
 }
+
+// ── GLOBAL ACTION HANDLERS ─────────────────────
+window.adminChangeRole = async function(uid, newRole, name) {
+  adminConfirm("🔄", "Change role?", `Set "${name}" to ${newRole}?`, async () => {
+    try {
+      await updateDoc(doc(db, "users", uid), { role: newRole });
+      const u = allAdminUsers.find(u => u.id === uid);
+      if (u) u.role = newRole;
+      renderAdminUsers(document.getElementById("adminUserSearch")?.value || "");
+      renderReputation();
+    } catch (err) { console.error(err); }
+  });
+};
+
+window.adminSetBan = async function(uid, ban, name) {
+  adminConfirm(
+    ban ? "🚫" : "✅",
+    ban ? "Shadow ban user?" : "Restore user?",
+    ban
+      ? `"${name}" will be silently blocked — reports won't appear to others.`
+      : `"${name}" will be restored and their reports visible again.`,
+    async () => {
+      try {
+        await updateDoc(doc(db, "users", uid), { shadowBanned: ban });
+        const u = allAdminUsers.find(u => u.id === uid);
+        if (u) u.shadowBanned = ban;
+        renderAdminUsers(document.getElementById("adminUserSearch")?.value || "");
+        renderReputation();
+        renderAdminOverview(
+          allAdminUsers.filter(u => u.role === "lgu").length,  // placeholder, re-fetch if needed
+          0
+        );
+        fetchAdminData(); // re-fetch to get fresh overview counts
+      } catch (err) { console.error(err); }
+    }
+  );
+};
+
+window.adminWarnUser = async function(uid, name) {
+  adminConfirm("⚠️", "Send warning?",
+    `A warning flag will be added to "${name}"'s account record.`,
+    async () => {
+      try {
+        await updateDoc(doc(db, "users", uid), { warned: true, warnedAt: new Date() });
+      } catch (err) { console.error(err); }
+    }
+  );
+};
+
+window.adminDeleteUser = async function(uid, name) {
+  adminConfirm("🗑️", "Delete user?",
+    `Remove "${name}" from Firestore? Their login account remains.`,
+    async () => {
+      try {
+        await deleteDoc(doc(db, "users", uid));
+        allAdminUsers = allAdminUsers.filter(u => u.id !== uid);
+        renderAdminUsers(document.getElementById("adminUserSearch")?.value || "");
+        renderReputation();
+        fetchAdminData();
+      } catch (err) { console.error(err); }
+    }
+  );
+};
+
+window.adminDeleteReport = async function(id, title) {
+  adminConfirm("🗑️", "Delete report?",
+    `"${title}" will be permanently removed.`,
+    async () => {
+      try {
+        await deleteDoc(doc(db, "incidents", id));
+        allAdminReports = allAdminReports.filter(r => r.id !== id);
+        renderAdminReports(document.getElementById("adminReportSearch")?.value || "");
+        fetchAdminData();
+      } catch (err) { console.error(err); }
+    }
+  );
+};
+
+window.adminDeleteArchive = async function(id, title) {
+  adminConfirm("🗑️", "Delete archived report?",
+    `"${title}" will be permanently removed from the archive.`,
+    async () => {
+      try {
+        await deleteDoc(doc(db, "archived_incidents", id));
+        allAdminArchive = allAdminArchive.filter(r => r.id !== id);
+        renderAdminArchive();
+        fetchAdminData();
+      } catch (err) { console.error(err); }
+    }
+  );
+};
 
 function adminConfirm(icon, title, body, onYes) {
   const modal = document.getElementById("adminConfirmModal");
@@ -891,8 +1210,8 @@ function adminConfirm(icon, title, body, onYes) {
   document.getElementById("adminConfirmTitle").textContent = title;
   document.getElementById("adminConfirmBody").textContent  = body;
   modal.style.display = "flex";
-  document.getElementById("adminConfirmYes").onclick = ()=>{ modal.style.display="none"; onYes(); };
-  document.getElementById("adminConfirmNo").onclick  = ()=>{ modal.style.display="none"; };
+  document.getElementById("adminConfirmYes").onclick = () => { modal.style.display = "none"; onYes(); };
+  document.getElementById("adminConfirmNo").onclick  = () => { modal.style.display = "none"; };
 }
 
 // ── BUILD REPORT CARD ──────────────────────────

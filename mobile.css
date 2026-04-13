@@ -162,6 +162,18 @@
 
   /* ── Popup edit form ── */
   .popup-edit-form { width: 100%; }
+
+  /* ── FIX: Loading state centering ──────────────────────────────
+     .loading-state has grid-column:1/-1 for CSS-grid containers,
+     but it's also used inside flex-column containers (e.g. .ann-list,
+     .dash-recent-list). Without width:100% it doesn't fill those
+     containers, so the spinner appears off to the left on mobile.
+  ── */
+  .loading-state {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+  }
 }
 
 /* Very small phones */
