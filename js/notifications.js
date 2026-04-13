@@ -18,7 +18,7 @@ import { doc, setDoc, deleteDoc, serverTimestamp }
 // ── PASTE YOUR VAPID KEY HERE ──────────────────────────────────
 // Firebase Console → Project Settings → Cloud Messaging →
 // Web Push certificates → Generate key pair → copy the Key pair value
-const VAPID_KEY = "YOUR_VAPID_PUBLIC_KEY_HERE";
+const VAPID_KEY = "BPm3FZDQbb5Ko5FvFv7yMiSDoi1tFZH5SxIDDEDN5NGQSf7iofDxZ5Lb95joYIS8yWb2-jmmHYsOWFOt8AosB4s";
 
 // ── REQUEST PERMISSION + SAVE TOKEN ───────────────────────────
 /**

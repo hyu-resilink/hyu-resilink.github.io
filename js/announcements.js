@@ -21,6 +21,9 @@ import {
   doc, onSnapshot, query, orderBy,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// ── Vercel notify endpoint ─────────────────────────────────────
+const NOTIFY_URL = "https://hyu-resilink-github-io.vercel.app/api/notify";
+
 let currentUserRole  = null;
 let currentUserId    = null;
 let _unsubscribe     = null; // Firestore listener teardown
@@ -279,6 +282,17 @@ function _wireAnnouncementForm() {
         postedBy:  user?.displayName || user?.email?.split("@")[0] || "LGU",
         createdAt: new Date(),
       });
+
+      // ── PUSH NOTIFICATION ──────────────────────────────────
+      fetch(NOTIFY_URL, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: `📢 ${title}`,
+          body,
+          type: "announcement",
+        }),
+      }).catch((err) => console.warn("[FCM] notify failed:", err));
 
       document.getElementById("annTitle").value    = "";
       document.getElementById("annBody").value     = "";

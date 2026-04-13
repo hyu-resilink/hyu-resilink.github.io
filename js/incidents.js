@@ -31,6 +31,9 @@ import {
   increment as fsIncrement
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// ── Vercel notify endpoint ─────────────────────────────────────
+const NOTIFY_URL = "https://hyu-resilink-github-io.vercel.app/api/notify";
+
 // ── STATE ──────────────────────────────────────────────────────
 export let currentUserRole = null;
 let currentUserId = null;
@@ -61,9 +64,6 @@ const CATEGORY_ICONS = {
 
 // ══════════════════════════════════════════════════════════════
 // ANTI-ABUSE — RATE LIMITER
-// Queries Firestore for how many reports this user submitted
-// in the last 10 minutes. Returns true = allowed, false = block.
-// No timing info is returned — spammers get no useful feedback.
 // ══════════════════════════════════════════════════════════════
 async function checkRateLimit(uid) {
   try {
@@ -76,7 +76,6 @@ async function checkRateLimit(uid) {
     const snap = await getDocs(q);
     return snap.size < RATE_LIMIT_COUNT;
   } catch (err) {
-    // If the check fails, allow submission so legit users aren't blocked
     console.warn("checkRateLimit error:", err);
     return true;
   }
@@ -84,9 +83,6 @@ async function checkRateLimit(uid) {
 
 // ══════════════════════════════════════════════════════════════
 // ANTI-ABUSE — TRUST SCORE UPDATER
-// Adjusts the reporter's trustScore in the users collection.
-// delta: positive = reward, negative = penalty.
-// Clamped 0.0–1.0. Shadow-ban auto-triggers below 0.2.
 // ══════════════════════════════════════════════════════════════
 async function updateReporterTrust(reporterId, delta) {
   if (!reporterId) return;
@@ -110,8 +106,6 @@ async function updateReporterTrust(reporterId, delta) {
 
 // ══════════════════════════════════════════════════════════════
 // CONFIDENCE SCORE
-// Combined signal: reporter trust + community flags/confirms
-// + LGU verification. Written to Firestore on every change.
 // ══════════════════════════════════════════════════════════════
 function computeConfidence(data) {
   if (data.verified === true) return 0.95;
@@ -126,8 +120,6 @@ function computeConfidence(data) {
 
 // ══════════════════════════════════════════════════════════════
 // SUBMIT ERROR DISPLAY
-// Inline message below the submit button.
-// Vague wording only — no timing info for spammers.
 // ══════════════════════════════════════════════════════════════
 function showSubmitError(message, durationMs = 6000) {
   let el = document.getElementById("submitRateLimitMsg");
@@ -181,10 +173,10 @@ function buildVerificationBanner(data) {
   return "";
 }
 
-// ── CONFIDENCE LABEL (public — no raw numbers exposed) ─────────
+// ── CONFIDENCE LABEL ───────────────────────────────────────────
 function buildConfidenceLabel(data) {
-  if (data.verified) return ""; // banner handles verified
-  if (data.flagged)  return ""; // banner handles flagged
+  if (data.verified) return "";
+  if (data.flagged)  return "";
 
   const c = data.confidenceScore ?? 0.5;
   let text, color, bg;
@@ -210,7 +202,6 @@ function buildConfidenceLabel(data) {
 function buildTrustActions(docId, data) {
   const isLgu = currentUserRole === "lgu";
 
-  // ── LGU layer ────────────────────────────────────────────────
   if (isLgu) {
     const alreadyVerified = data.verified === true;
     const alreadyFlagged  = data.flagged  === true;
@@ -246,7 +237,6 @@ function buildTrustActions(docId, data) {
     </div>`;
   }
 
-  // ── Community layer ──────────────────────────────────────────
   const flaggedBy   = data.flaggedBy   || [];
   const confirmedBy = data.confirmedBy || [];
   const isOwnReport      = currentUserId && data.userId === currentUserId;
@@ -299,8 +289,6 @@ export function loadIncidents() {
       const data = docSnap.data();
       const id   = docSnap.id;
 
-      // Shadow-ban filter: low-confidence reports are invisible to
-      // community users. LGU always sees everything for review.
       const confidence = data.confidenceScore ?? 0.5;
       if (currentUserRole !== "lgu" && confidence < 0.2) return;
 
@@ -334,7 +322,6 @@ export function loadIncidents() {
       const timestampHTML = dateStr
         ? `<div class="popup-timestamp">🕐 ${dateStr}</div>` : "";
 
-      // ── LGU-only action buttons ──────────────────────────────
       let actionButtons = "";
       if (currentUserRole === "lgu") {
         if (data.status === "active") {
@@ -482,7 +469,6 @@ async function setVerification(id, isVerified) {
       ...(isVerified ? { flagged: false, flagCount: 0 } : {})
     });
 
-    // Trust reward: reporter gets +0.1 when LGU verifies their report
     if (isVerified && data.userId) {
       await updateReporterTrust(data.userId, +0.1);
     }
@@ -501,7 +487,6 @@ async function setFlag(id, isFlagged, isLgu) {
     const data = snap.data();
 
     if (!isFlagged) {
-      // Unflag — LGU only
       await updateDoc(ref, {
         flagged:         false,
         flagCount:       0,
@@ -512,7 +497,6 @@ async function setFlag(id, isFlagged, isLgu) {
       });
 
     } else if (isLgu) {
-      // LGU flag — immediate strong signal
       await updateDoc(ref, {
         flagged:         true,
         flagCount:       fsIncrement(1),
@@ -522,7 +506,6 @@ async function setFlag(id, isFlagged, isLgu) {
       if (data.userId) await updateReporterTrust(data.userId, -0.15);
 
     } else {
-      // Community flag — prevent double-flagging per user
       if (!currentUserId) return;
       const flaggedBy = data.flaggedBy || [];
       if (flaggedBy.includes(currentUserId)) return;
@@ -540,7 +523,6 @@ async function setFlag(id, isFlagged, isLgu) {
         confidenceScore: newConf
       });
 
-      // Minor trust penalty when community threshold is hit
       if (shouldFlag && data.userId) {
         await updateReporterTrust(data.userId, -0.05);
       }
@@ -561,8 +543,8 @@ async function confirmReport(id, btnEl) {
     const data = snap.data();
 
     const confirmedBy = data.confirmedBy || [];
-    if (confirmedBy.includes(currentUserId)) return; // already confirmed
-    if (data.userId === currentUserId)        return; // can't confirm own report
+    if (confirmedBy.includes(currentUserId)) return;
+    if (data.userId === currentUserId)        return;
 
     const newConfirmedBy = [...confirmedBy, currentUserId];
     const newConf        = computeConfidence({ ...data, confirmedBy: newConfirmedBy });
@@ -578,7 +560,6 @@ async function confirmReport(id, btnEl) {
       btnEl.textContent = `✓ Confirmed (${newConfirmedBy.length})`;
     }
 
-    // Small trust reward for the reporter
     if (data.userId) await updateReporterTrust(data.userId, +0.03);
 
   } catch (err) {
@@ -724,9 +705,6 @@ if (submitBtn) {
     submitBtn.textContent = "Submitting…";
 
     try {
-      // ── RATE LIMIT CHECK ─────────────────────────────────────
-      // Vague message — no timing info given so spammers can't
-      // calculate when exactly to try again.
       if (currentUserId) {
         const allowed = await checkRateLimit(currentUserId);
         if (!allowed) {
@@ -739,12 +717,10 @@ if (submitBtn) {
         }
       }
 
-      // ── SHADOW BAN CHECK ─────────────────────────────────────
-      // Silent discard — banned user thinks the submit succeeded.
       if (currentUserId) {
         const userSnap = await getDoc(doc(db, "users", currentUserId));
         if (userSnap.exists() && userSnap.data().shadowBanned === true) {
-          await new Promise(r => setTimeout(r, 900)); // fake processing delay
+          await new Promise(r => setTimeout(r, 900));
           resetForm();
           submitBtn.disabled    = false;
           submitBtn.textContent = "Submit";
@@ -752,14 +728,12 @@ if (submitBtn) {
         }
       }
 
-      // ── GET REPORTER TRUST SCORE ─────────────────────────────
-      let reporterTrustScore = 0.5; // safe default for new users
+      let reporterTrustScore = 0.5;
       if (currentUserId) {
         const userSnap = await getDoc(doc(db, "users", currentUserId));
         if (userSnap.exists()) {
           const userData = userSnap.data();
           reporterTrustScore = userData.trustScore ?? 0.5;
-          // Init trust fields on first report
           if (userData.trustScore === undefined) {
             await updateDoc(doc(db, "users", currentUserId), {
               trustScore:   0.5,
@@ -770,18 +744,13 @@ if (submitBtn) {
         }
       }
 
-      // Initial confidence seeded from reporter trust.
-      // Range: 0.3 (fully distrusted) → 0.7 (fully trusted).
       const initialConfidence = Math.min(0.7, 0.3 + reporterTrustScore * 0.4);
 
-      // ── COMPRESS IMAGE ───────────────────────────────────────
       let imageBase64 = null;
       const file = document.getElementById("imageFile").files[0];
       if (file) imageBase64 = await compressImage(file);
 
-      // ── WRITE TO FIRESTORE ───────────────────────────────────
       await addDoc(collection(db, "incidents"), {
-        // Core report fields
         category,
         title,
         description,
@@ -791,8 +760,6 @@ if (submitBtn) {
         source:      currentUserRole,
         imageBase64: imageBase64 || null,
         createdAt:   new Date(),
-
-        // Trust / anti-abuse fields
         userId:              currentUserId || null,
         reporterTrustScore,
         confidenceScore:     initialConfidence,
@@ -804,7 +771,17 @@ if (submitBtn) {
         verified:            false
       });
 
-      // Increment reporter's lifetime report count
+      // ── PUSH NOTIFICATION ──────────────────────────────────
+      fetch(NOTIFY_URL, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: `📍 New Incident Report`,
+          body:  `${category} reported — tap to view on the map.`,
+          type:  "incident",
+        }),
+      }).catch((err) => console.warn("[FCM] notify failed:", err));
+
       if (currentUserId) {
         await updateDoc(doc(db, "users", currentUserId), {
           reportCount: fsIncrement(1)
