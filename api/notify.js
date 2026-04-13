@@ -7,9 +7,9 @@ import { getMessaging } from "firebase-admin/messaging";
 if (!getApps().length) {
   initializeApp({
     credential: cert({
-      projectId:    process.env.FIREBASE_PROJECT_ID,
-      clientEmail:  process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey:   process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+      projectId:   process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey:  process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
     }),
   });
 }
@@ -19,6 +19,15 @@ const messaging = getMessaging();
 
 // ── Handler ────────────────────────────────────────────────────
 export default async function handler(req, res) {
+  // ── Handle CORS preflight ──────────────────────────────────
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -60,7 +69,6 @@ export default async function handler(req, res) {
     response.responses.forEach((r, i) => {
       if (!r.success) {
         console.warn(`[FCM] Token failed: ${tokens[i]}`, r.error?.code);
-        // Remove invalid tokens automatically
         if (
           r.error?.code === "messaging/invalid-registration-token" ||
           r.error?.code === "messaging/registration-token-not-registered"
@@ -72,8 +80,8 @@ export default async function handler(req, res) {
     await batch.commit();
 
     return res.status(200).json({
-      success:  response.successCount,
-      failed:   response.failureCount,
+      success: response.successCount,
+      failed:  response.failureCount,
     });
 
   } catch (err) {
