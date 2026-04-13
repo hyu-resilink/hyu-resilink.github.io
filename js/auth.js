@@ -25,9 +25,9 @@ import {
 } from "./offline.js";
 
 import { onAuthStateChanged, signOut }
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { doc, getDoc }
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ── OFFLINE BANNER ON STARTUP ──────────────────────────────────
 if (!isOnline()) {

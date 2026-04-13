@@ -3,9 +3,9 @@ import { db, auth } from "./firebase.js";
 import {
   collection, onSnapshot, getDocs,
   query, orderBy, limit, doc, updateDoc, deleteDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { updateProfile }
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { map } from "./map.js";
 import { compressImage } from "./utils.js";
 

@@ -19,7 +19,7 @@ import {
 import {
   collection, addDoc, deleteDoc,
   doc, onSnapshot, query, orderBy,
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ── Vercel notify endpoint ─────────────────────────────────────
 const NOTIFY_URL = "https://hyu-resilink-github-io.vercel.app/api/notify";

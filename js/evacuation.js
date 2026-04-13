@@ -13,7 +13,7 @@ import {
   doc,
   updateDoc,
   serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ── CONSTANTS ──────────────────────────────────────────────────
 
