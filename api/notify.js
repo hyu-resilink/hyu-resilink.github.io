@@ -54,17 +54,30 @@ export default async function handler(req, res) {
       tokens,
       notification: { title, body },
       webpush: {
-        notification: {
-          title,
-          body,
-          icon: "/icons/icon.png",
-          badge: "/icons/icon.png",
-          vibrate: [200, 100, 200],
-        },
-        fcmOptions: {
-          link: "https://hyu-resilink.github.io",
-        },
-      },
+  headers: {
+    Urgency: "high",
+  },
+  notification: {
+    title,
+    body,
+    icon: "/icons/icon.png",
+    badge: "/icons/icon.png",
+    vibrate: [200, 100, 200],
+    requireInteraction: true,  // keeps it visible until dismissed
+  },
+  fcmOptions: {
+    link: "https://hyu-resilink.github.io",
+  },
+},
+// Also add this outside webpush:
+android: {
+  priority: "high",
+  notification: {
+    channelId: "resilink_alerts",
+    priority: "high",
+    defaultVibrateTimings: true,
+  },
+},
     });
 
     // Clean up any tokens that are no longer valid
