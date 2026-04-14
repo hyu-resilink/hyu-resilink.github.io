@@ -4,7 +4,8 @@
 //
 // Responsibilities:
 //  1. Request notification permission from the user
-//  2. Get FCM token and save it to Firestore (fcmTokens collection)
+//  2. Get FCM token (explicitly linked to the registered SW) and
+//     save it to Firestore (fcmTokens collection)
 //  3. Handle foreground messages (app is open) with a toast banner
 //  4. Clean up stale token when user logs out
 // ─────────────────────────────────────────────────────────────
@@ -12,12 +13,10 @@
 import { messaging, db, auth } from "./firebase.js";
 import { getToken, onMessage }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
-import { doc, setDoc, deleteDoc, serverTimestamp }
+import { doc, getDoc, setDoc, deleteDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ── PASTE YOUR VAPID KEY HERE ──────────────────────────────────
-// Firebase Console → Project Settings → Cloud Messaging →
-// Web Push certificates → Generate key pair → copy the Key pair value
 const VAPID_KEY = "BPm3FZDQbb5Ko5FvFv7yMiSDoi1tFZH5SxIDDEDN5NGQSf7iofDxZ5Lb95joYIS8yWb2-jmmHYsOWFOt8AosB4s";
 
 // ── REQUEST PERMISSION + SAVE TOKEN ───────────────────────────
@@ -32,7 +31,7 @@ export async function initPushNotifications() {
     return;
   }
 
-  // Don't prompt again if already granted
+  // Don't prompt again if already denied
   if (Notification.permission === "denied") {
     console.warn("[FCM] Notifications were blocked by the user.");
     return;
@@ -45,9 +44,24 @@ export async function initPushNotifications() {
       return;
     }
 
-    const token = await getToken(messaging, { vapidKey: VAPID_KEY });
+    // ── FIX 2: wait for the SW to be ready, then pass it explicitly ──
+    // This ensures FCM uses /firebase-messaging-sw.js (now at root)
+    // and doesn't race with sw.js or fail silently.
+    if (!("serviceWorker" in navigator)) {
+      console.warn("[FCM] Service workers not supported.");
+      return;
+    }
+
+    const swRegistration = await navigator.serviceWorker.ready;
+    console.log("[FCM] Using SW scope:", swRegistration.scope);
+
+    const token = await getToken(messaging, {
+      vapidKey: VAPID_KEY,
+      serviceWorkerRegistration: swRegistration,
+    });
+
     if (!token) {
-      console.warn("[FCM] No token returned — service worker may not be registered yet.");
+      console.warn("[FCM] No token returned — check VAPID key and SW registration.");
       return;
     }
 
@@ -63,14 +77,29 @@ export async function initPushNotifications() {
 }
 
 // ── SAVE TOKEN TO FIRESTORE ────────────────────────────────────
+// FIX 3: role is not a field on the Firebase Auth user object.
+// We read it from Firestore's "users" collection instead.
 async function _saveFcmToken(token) {
   const user = auth.currentUser;
+  if (!user) return;
+
+  // Look up the user's role from Firestore (auth user has no .role field)
+  let role = null;
+  try {
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+    if (userSnap.exists()) {
+      role = userSnap.data().role || null;
+    }
+  } catch (err) {
+    console.warn("[FCM] Could not read user role:", err);
+  }
+
   // Document keyed by token so it auto-deduplicates on re-registration
   await setDoc(doc(db, "fcmTokens", token), {
     token,
-    uid:       user?.uid    || null,
-    email:     user?.email  || null,
-    role:      user?.role   || null,   // populated if you store role on the auth user
+    uid:       user.uid,
+    email:     user.email  || null,
+    role,                          // now correctly read from Firestore
     updatedAt: serverTimestamp(),
   });
 }
@@ -137,7 +166,6 @@ function _showToast(title, body, icon) {
 }
 
 // ── TOAST CSS (injected once) ──────────────────────────────────
-// Add this once when the module loads so no separate CSS file is needed
 (function _injectToastStyles() {
   if (document.getElementById("fcm-toast-styles")) return;
   const style = document.createElement("style");
