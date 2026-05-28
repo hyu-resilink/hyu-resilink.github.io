@@ -1,0 +1,189 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dineug/erd-editor/main/packages/erd-editor/schema/erd-editor-schema.json",
+  "version": "2.1.0",
+  "settings": {
+    "width": 2000,
+    "height": 2000,
+    "scrollTop": 0,
+    "scrollLeft": 0,
+    "zoomLevel": 1,
+    "show": {
+      "tableComment": true,
+      "columnComment": true,
+      "columnDataType": true,
+      "columnDefault": false,
+      "columnNotNull": true,
+      "columnUnique": false,
+      "columnAutoIncrement": false,
+      "relationship": true
+    },
+    "database": "MySQL",
+    "language": "GraphQL",
+    "tableNameCase": "upper_case",
+    "columnNameCase": "lower_case",
+    "bracketType": "none",
+    "relationshipDataTypeSync": true
+  },
+  "tables": [
+    {
+      "id": "tbl-users",
+      "name": "USERS",
+      "comment": "",
+      "columns": [
+        { "id": "col-u1", "name": "uid", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": true, "unique": false, "notNull": true }, "ui": { "keys": ["PK"] } },
+        { "id": "col-u2", "name": "username", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-u3", "name": "email", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-u4", "name": "phone", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-u5", "name": "role", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-u6", "name": "empId", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-u7", "name": "trustScore", "comment": "", "dataType": "float", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-u8", "name": "shadowBanned", "comment": "", "dataType": "bool", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-u9", "name": "warned", "comment": "", "dataType": "bool", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-u10", "name": "reportCount", "comment": "", "dataType": "int", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-u11", "name": "fakeCount", "comment": "", "dataType": "int", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-u12", "name": "phoneVerified", "comment": "", "dataType": "bool", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-u13", "name": "photoBase64", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-u14", "name": "createdAt", "comment": "", "dataType": "timestamp", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } }
+      ],
+      "ui": { "x": 50, "y": 50, "zIndex": 1, "widthName": 120, "widthComment": 60, "color": "#2a3a52" }
+    },
+    {
+      "id": "tbl-incidents",
+      "name": "INCIDENTS",
+      "comment": "",
+      "columns": [
+        { "id": "col-i1", "name": "id", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": true, "unique": false, "notNull": true }, "ui": { "keys": ["PK"] } },
+        { "id": "col-i2", "name": "userId", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": ["FK"] } },
+        { "id": "col-i3", "name": "title", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i4", "name": "description", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i5", "name": "category", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i6", "name": "latitude", "comment": "", "dataType": "float", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i7", "name": "longitude", "comment": "", "dataType": "float", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i8", "name": "status", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i9", "name": "source", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i10", "name": "imageBase64", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i11", "name": "confidenceScore", "comment": "", "dataType": "float", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i12", "name": "reporterTrustScore", "comment": "", "dataType": "float", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i13", "name": "verified", "comment": "", "dataType": "bool", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i14", "name": "flagged", "comment": "", "dataType": "bool", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i15", "name": "flagCount", "comment": "", "dataType": "int", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i16", "name": "confirmCount", "comment": "", "dataType": "int", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i17", "name": "flaggedBy", "comment": "", "dataType": "array", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i18", "name": "confirmedBy", "comment": "", "dataType": "array", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i19", "name": "createdAt", "comment": "", "dataType": "timestamp", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-i20", "name": "editedAt", "comment": "", "dataType": "timestamp", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } }
+      ],
+      "ui": { "x": 400, "y": 50, "zIndex": 1, "widthName": 120, "widthComment": 60, "color": "#2a3a52" }
+    },
+    {
+      "id": "tbl-archived",
+      "name": "ARCHIVED_INCIDENTS",
+      "comment": "",
+      "columns": [
+        { "id": "col-a1", "name": "id", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": true, "unique": false, "notNull": true }, "ui": { "keys": ["PK"] } },
+        { "id": "col-a2", "name": "userId", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": ["FK"] } },
+        { "id": "col-a3", "name": "title", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-a4", "name": "category", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-a5", "name": "status", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-a6", "name": "archivedAt", "comment": "", "dataType": "timestamp", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } }
+      ],
+      "ui": { "x": 800, "y": 50, "zIndex": 1, "widthName": 160, "widthComment": 60, "color": "#2a3a52" }
+    },
+    {
+      "id": "tbl-announcements",
+      "name": "ANNOUNCEMENTS",
+      "comment": "",
+      "columns": [
+        { "id": "col-an1", "name": "id", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": true, "unique": false, "notNull": true }, "ui": { "keys": ["PK"] } },
+        { "id": "col-an2", "name": "title", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-an3", "name": "body", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-an4", "name": "priority", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-an5", "name": "postedBy", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-an6", "name": "createdAt", "comment": "", "dataType": "timestamp", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } }
+      ],
+      "ui": { "x": 50, "y": 600, "zIndex": 1, "widthName": 140, "widthComment": 60, "color": "#2a3a52" }
+    },
+    {
+      "id": "tbl-heritage",
+      "name": "HERITAGE_SITES",
+      "comment": "",
+      "columns": [
+        { "id": "col-h1", "name": "id", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": true, "unique": false, "notNull": true }, "ui": { "keys": ["PK"] } },
+        { "id": "col-h2", "name": "name", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-h3", "name": "lat", "comment": "", "dataType": "float", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-h4", "name": "lng", "comment": "", "dataType": "float", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-h5", "name": "status", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-h6", "name": "risk_level", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-h7", "name": "damage_notes", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-h8", "name": "base64", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-h9", "name": "createdAt", "comment": "", "dataType": "timestamp", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-h10", "name": "updatedAt", "comment": "", "dataType": "timestamp", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } }
+      ],
+      "ui": { "x": 400, "y": 600, "zIndex": 1, "widthName": 140, "widthComment": 60, "color": "#2a3a52" }
+    },
+    {
+      "id": "tbl-sitereports",
+      "name": "SITE_REPORTS",
+      "comment": "",
+      "columns": [
+        { "id": "col-sr1", "name": "id", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": true, "unique": false, "notNull": true }, "ui": { "keys": ["PK"] } },
+        { "id": "col-sr2", "name": "siteId", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": ["FK"] } },
+        { "id": "col-sr3", "name": "siteName", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-sr4", "name": "observation", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-sr5", "name": "imageBase64", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-sr6", "name": "createdAt", "comment": "", "dataType": "timestamp", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } }
+      ],
+      "ui": { "x": 800, "y": 600, "zIndex": 1, "widthName": 120, "widthComment": 60, "color": "#2a3a52" }
+    },
+    {
+      "id": "tbl-evacuation",
+      "name": "EVACUATION_CENTERS",
+      "comment": "",
+      "columns": [
+        { "id": "col-e1", "name": "id", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": true, "unique": false, "notNull": true }, "ui": { "keys": ["PK"] } },
+        { "id": "col-e2", "name": "name", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-e3", "name": "lat", "comment": "", "dataType": "float", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-e4", "name": "lng", "comment": "", "dataType": "float", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-e5", "name": "barangay", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-e6", "name": "municipality", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-e7", "name": "status", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-e8", "name": "capacity", "comment": "", "dataType": "int", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-e9", "name": "occupants", "comment": "", "dataType": "int", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-e10", "name": "resources", "comment": "", "dataType": "object", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-e11", "name": "updatedAt", "comment": "", "dataType": "timestamp", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } }
+      ],
+      "ui": { "x": 1150, "y": 50, "zIndex": 1, "widthName": 180, "widthComment": 60, "color": "#2a3a52" }
+    },
+    {
+      "id": "tbl-fcm",
+      "name": "FCM_TOKENS",
+      "comment": "",
+      "columns": [
+        { "id": "col-f1", "name": "token", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": true, "unique": false, "notNull": true }, "ui": { "keys": ["PK"] } },
+        { "id": "col-f2", "name": "uid", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": ["FK"] } },
+        { "id": "col-f3", "name": "email", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-f4", "name": "role", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-f5", "name": "updatedAt", "comment": "", "dataType": "timestamp", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } }
+      ],
+      "ui": { "x": 1150, "y": 400, "zIndex": 1, "widthName": 120, "widthComment": 60, "color": "#2a3a52" }
+    },
+    {
+      "id": "tbl-sysconfig",
+      "name": "SYSTEM_CONFIG",
+      "comment": "",
+      "columns": [
+        { "id": "col-sc1", "name": "id", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": true, "unique": false, "notNull": true }, "ui": { "keys": ["PK"] } },
+        { "id": "col-sc2", "name": "lguSecret", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } },
+        { "id": "col-sc3", "name": "sysadminSecret", "comment": "", "dataType": "string", "default": "", "option": { "autoIncrement": false, "primaryKey": false, "unique": false, "notNull": false }, "ui": { "keys": [] } }
+      ],
+      "ui": { "x": 1150, "y": 650, "zIndex": 1, "widthName": 140, "widthComment": 60, "color": "#2a3a52" }
+    }
+  ],
+  "relationships": [
+    { "id": "rel-1", "identification": false, "relationshipType": "OneN", "startRelationshipType": "Dash", "start": { "tableId": "tbl-users", "columnIds": ["col-u1"], "x": 0, "y": 0, "direction": "right" }, "end": { "tableId": "tbl-incidents", "columnIds": ["col-i2"], "x": 0, "y": 0, "direction": "left" } },
+    { "id": "rel-2", "identification": false, "relationshipType": "OneN", "startRelationshipType": "Dash", "start": { "tableId": "tbl-users", "columnIds": ["col-u1"], "x": 0, "y": 0, "direction": "right" }, "end": { "tableId": "tbl-archived", "columnIds": ["col-a2"], "x": 0, "y": 0, "direction": "left" } },
+    { "id": "rel-3", "identification": false, "relationshipType": "OneN", "startRelationshipType": "Dash", "start": { "tableId": "tbl-users", "columnIds": ["col-u1"], "x": 0, "y": 0, "direction": "right" }, "end": { "tableId": "tbl-fcm", "columnIds": ["col-f2"], "x": 0, "y": 0, "direction": "left" } },
+    { "id": "rel-4", "identification": false, "relationshipType": "OneN", "startRelationshipType": "Dash", "start": { "tableId": "tbl-heritage", "columnIds": ["col-h1"], "x": 0, "y": 0, "direction": "right" }, "end": { "tableId": "tbl-sitereports", "columnIds": ["col-sr2"], "x": 0, "y": 0, "direction": "left" } }
+  ],
+  "indexes": []
+}
